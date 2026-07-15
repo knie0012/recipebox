@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% if recipe %}
+
+    {% set page_title = "Edit " ~ recipe.title %}
+    {% set heading = "Edit Recipe" %}
+
+{% else %}
+
+    {% set page_title = "Add Recipe" %}
+    {% set heading = "Add Recipe" %}
+
+{% endif %}
+
+{% block title %}
+{{ page_title }} | RecipeBox
+{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+
+    <div>
+        <h1>{{ heading }}</h1>
+
+        {% if recipe %}
+            <p class="muted">
+                Update the recipe information below.
+            </p>
+        {% else %}
+            <p class="muted">
+                Enter the basic recipe information.
+                Ingredients can be added after saving.
+            </p>
+        {% endif %}
+    </div>
+
+</div>
+
+<div class="card">
+
+    <form method="POST">
+
+        <div class="form-group">
+
+            <label for="title">
+                Title
+            </label>
+
+            <input
+                id="title"
+                type="text"
+                name="title"
+                maxlength="150"
+                required
+                value="{{ request.form.get('title', recipe.title if recipe else '') }}"
+            >
+
+        </div>
+
+        <div class="form-group">
+
+            <label for="description">
+                Description
+            </label>
+
+            <textarea
+                id="description"
+                name="description"
+                rows="3"
+            >{{ request.form.get('description', recipe.description if recipe and recipe.description else '') }}</textarea>
+
+        </div>
+
+
+        <div class="form-group">
+
+            <label for="prep_time">
+                Prep Time in Minutes
+            </label>
+
+            <input
+                id="prep_time"
+                type="number"
+                name="prep_time"
+                min="0"
+                inputmode="numeric"
+                value="{{ request.form.get('prep_time', recipe.prep_time if recipe and recipe.prep_time is not none else '') }}"
+            >
+
+        </div>
+
+        <div class="form-group">
+
+            <label for="cook_time">
+                Cook Time in Minutes
+            </label>
+
+            <input
+                id="cook_time"
+                type="number"
+                name="cook_time"
+                min="0"
+                inputmode="numeric"
+                value="{{ request.form.get('cook_time', recipe.cook_time if recipe and recipe.cook_time is not none else '') }}"
+            >
+
+        </div>
+
+        <div class="form-group">
+
+            <label for="servings">
+                Servings
+            </label>
+
+            <input
+                id="servings"
+                type="number"
+                name="servings"
+                min="0"
+                inputmode="numeric"
+                value="{{ request.form.get('servings', recipe.servings if recipe and recipe.servings is not none else '') }}"
+            >
+
+        </div>
+
+        <div class="button-row">
+
+            <button
+                class="button"
+                type="submit"
+            >
+                {% if recipe %}
+                    Save Changes
+                {% else %}
+                    Create Recipe
+                {% endif %}
+            </button>
+
+            {% if recipe %}
+
+                <a
+                    class="button button-secondary"
+                    href="{{ url_for('recipes.detail', id=recipe.id) }}"
+                >
+                    Cancel
+                </a>
+
+            {% else %}
+
+                <a
+                    class="button button-secondary"
+                    href="{{ url_for('main.index') }}"
+                >
+                    Cancel
+                </a>
+
+            {% endif %}
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

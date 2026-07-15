@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}
+Recipes | RecipeBox
+{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+
+    <div>
+        <h1>Farpoint Recipes</h1>
+        <p class="muted">
+            Browse and manage (must be logged in) your saved recipes.
+        </p>
+    </div>
+
+{% if current_user.is_authenticated %}
+
+    <a
+        class="button"
+        href="{{ url_for('recipes.new_recipe') }}"
+    >
+        Add Recipe
+    </a>
+
+{% endif %}
+
+</div>
+
+{% if recipes %}
+
+    <div class="recipe-list">
+
+        {% for recipe in recipes %}
+
+		<article class="card recipe-card">
+
+		    {% if recipe.recipe_images %}
+
+		        {% set thumbnail = recipe.recipe_images[0] %}
+
+		        <a
+		            class="recipe-thumbnail-link"
+		            href="{{ url_for(
+		                'recipes.detail',
+		                id=recipe.id
+		            ) }}"
+		        >
+		            <img
+		                class="recipe-thumbnail"
+		                src="{{ url_for(
+		                    'static',
+		                    filename='uploads/recipes/' ~ thumbnail.filename
+		                ) }}"
+		                alt="{{ thumbnail.caption or recipe.title }}"
+		                loading="lazy"
+		            >
+		        </a>
+
+		    {% else %}
+
+		        <div class="recipe-thumbnail-placeholder">
+		            No Photo
+		        </div>
+
+		    {% endif %}
+
+		    <div class="recipe-card-content">
+
+		        <h2>
+		            <a href="{{ url_for(
+		                'recipes.detail',
+		                id=recipe.id
+		            ) }}">
+		                {{ recipe.title }}
+		            </a>
+		        </h2>
+
+		        {% if recipe.description %}
+		            <p>{{ recipe.description }}</p>
+		        {% endif %}
+
+		        <p class="recipe-meta">
+
+		            {% if recipe.prep_time is not none %}
+		                Prep: {{ recipe.prep_time }} min
+		            {% endif %}
+
+		            {% if recipe.prep_time is not none
+		                  and recipe.cook_time is not none %}
+		                |
+		            {% endif %}
+
+		            {% if recipe.cook_time is not none %}
+		                Cook: {{ recipe.cook_time }} min
+		            {% endif %}
+
+		            {% if recipe.servings is not none %}
+		                | Serves {{ recipe.servings }}
+		            {% endif %}
+
+		        </p>
+
+		    </div>
+
+		</article>
+
+        {% endfor %}
+
+    </div>
+
+{% else %}
+
+    <div class="card">
+
+        <h2>No recipes yet</h2>
+
+        <p>
+            Add your first recipe to begin building your collection.
+        </p>
+
+{% if current_user.is_authenticated %}
+
+    <a
+        class="button"
+        href="{{ url_for('recipes.new_recipe') }}"
+    >
+        Add Your First Recipe
+    </a>
+
+{% else %}
+
+    <p>
+        No recipes have been added.
+    </p>
+
+{% endif %}
+    </div>
+
+{% endif %}
+
+{% endblock %}

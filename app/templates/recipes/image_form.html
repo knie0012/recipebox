@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}
+Edit Photo | RecipeBox
+{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+
+    <div>
+        <h1>Edit Photo</h1>
+
+        <p class="muted">
+            Recipe: {{ recipe.title }}
+        </p>
+    </div>
+
+</div>
+
+<div class="card">
+
+    <img
+        class="recipe-image image-edit-preview"
+        src="{{ url_for(
+            'static',
+            filename='uploads/recipes/' ~ image.filename
+        ) }}"
+        alt="{{ image.caption or recipe.title }}"
+    >
+
+    <form method="POST">
+
+        <div class="form-group">
+
+            <label for="caption">
+                Caption
+            </label>
+
+            <input
+                id="caption"
+                name="caption"
+                type="text"
+                maxlength="255"
+                value="{{ request.form.get(
+                    'caption',
+                    image.caption or ''
+                ) }}"
+                placeholder="Optional photo caption"
+            >
+
+        </div>
+
+        <div class="button-row">
+
+            <button
+                class="button"
+                type="submit"
+            >
+                Save Caption
+            </button>
+
+            <a
+                class="button button-secondary"
+                href="{{ url_for(
+                    'recipes.detail',
+                    id=recipe.id
+                ) }}"
+            >
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

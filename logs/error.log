@@ -1,0 +1,11 @@
+[2026-07-13 16:28:25 -0800] [3369402] [INFO] Starting gunicorn 23.0.0
+[2026-07-13 16:28:25 -0800] [3369402] [INFO] Listening at: unix:/home/knie0012/projects/recipebox/recipebox.sock (3369402)
+[2026-07-13 16:28:25 -0800] [3369402] [INFO] Using worker: sync
+[2026-07-13 16:28:25 -0800] [3369403] [INFO] Booting worker with pid: 3369403
+[2026-07-13 16:28:25 -0800] [3369404] [INFO] Booting worker with pid: 3369404
+[2026-07-13 16:28:25 -0800] [3369405] [INFO] Booting worker with pid: 3369405
+[2026-07-13 16:29:54 -0800] [3369402] [INFO] Handling signal: int
+[2026-07-13 16:29:54 -0800] [3369403] [INFO] Worker exiting (pid: 3369403)
+[2026-07-13 16:29:54 -0800] [3369405] [INFO] Worker exiting (pid: 3369405)
+[2026-07-13 16:29:54 -0800] [3369404] [INFO] Worker exiting (pid: 3369404)
+[2026-07-13 16:29:55 -0800] [3369402] [INFO] Shutting down: Master

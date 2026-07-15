@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}
+
+    {% if step %}
+        Edit Step
+    {% else %}
+        Add Step
+    {% endif %}
+
+    | RecipeBox
+
+{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+
+    <div>
+
+        <h1>
+            {% if step %}
+                Edit Step
+            {% else %}
+                Add Step
+            {% endif %}
+        </h1>
+
+        <p class="muted">
+            Recipe: {{ recipe.title }}
+        </p>
+
+    </div>
+
+</div>
+
+<div class="card">
+
+    <form method="POST">
+
+        <div class="form-group">
+
+            <label for="instruction">
+                Instruction
+            </label>
+
+            <textarea
+                id="instruction"
+                name="instruction"
+                rows="6"
+                required
+            >{{ request.form.get(
+                'instruction',
+                step.instruction if step else ''
+            ) }}</textarea>
+
+        </div>
+
+        <div class="form-group">
+
+            <label for="timer_minutes">
+                Optional Timer in Minutes
+            </label>
+
+            <input
+                id="timer_minutes"
+                type="number"
+                name="timer_minutes"
+                min="0"
+                inputmode="numeric"
+                value="{{ request.form.get(
+                    'timer_minutes',
+                    step.timer_minutes
+                    if step and step.timer_minutes is not none
+                    else ''
+                ) }}"
+            >
+
+        </div>
+
+        <div class="button-row">
+
+            <button
+                class="button"
+                type="submit"
+            >
+                Save Step
+            </button>
+
+            <a
+                class="button button-secondary"
+                href="{{ url_for('recipes.detail', id=recipe.id) }}"
+            >
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

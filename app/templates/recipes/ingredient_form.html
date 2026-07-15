@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block title %}
+
+    {% if item %}
+        Edit Ingredient
+    {% else %}
+        Add Ingredient
+    {% endif %}
+
+    | RecipeBox
+
+{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+
+    <div>
+
+        <h1>
+            {% if item %}
+                Edit Ingredient
+            {% else %}
+                Add Ingredient
+            {% endif %}
+        </h1>
+
+        <p class="muted">
+            Recipe: {{ recipe.title }}
+        </p>
+
+    </div>
+
+</div>
+
+<div class="card">
+
+    <form method="POST">
+
+        <div class="form-group">
+
+            <label for="ingredient_name">
+                Ingredient
+            </label>
+
+            <input
+                id="ingredient_name"
+                name="ingredient_name"
+                type="text"
+                list="ingredient-options"
+                maxlength="100"
+                autocomplete="off"
+                required
+                placeholder="Begin typing an ingredient..."
+                value="{{ request.form.get(
+                    'ingredient_name',
+                    item.ingredient.name if item else ''
+                ) }}"
+            >
+
+            <datalist id="ingredient-options">
+
+                {% for ingredient in ingredients %}
+
+                    <option value="{{ ingredient.name }}">
+                        {% if ingredient.category %}
+                            {{ ingredient.category }}
+                        {% endif %}
+                    </option>
+
+                {% endfor %}
+
+            </datalist>
+
+            <p class="field-help">
+                Select a suggestion or enter a new ingredient name.
+            </p>
+
+        </div>
+
+        <div class="form-group">
+
+            <label for="category">
+                Category for a New Ingredient
+            </label>
+
+            <input
+                id="category"
+                name="category"
+                type="text"
+                maxlength="50"
+                placeholder="Produce, dairy, meat, pantry..."
+                value="{{ request.form.get('category', '') }}"
+            >
+
+            <p class="field-help">
+                This is only used when the ingredient does not
+                already exist.
+            </p>
+
+        </div>
+
+        <div class="form-row">
+
+            <div class="form-group">
+
+                <label for="quantity">
+                    Quantity
+                </label>
+
+                <input
+                    id="quantity"
+                    name="quantity"
+                    type="text"
+                    maxlength="50"
+                    placeholder="1, 1/2, 2 1/4, to taste..."
+                    value="{{ request.form.get(
+                        'quantity',
+                        item.quantity if item and item.quantity else ''
+                    ) }}"
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="unit">
+                    Unit
+                </label>
+
+                {% set selected_unit = request.form.get(
+                    'unit',
+                    item.unit if item and item.unit else ''
+                ) %}
+
+                <select
+                    id="unit"
+                    name="unit"
+                >
+
+                    <option value="">
+                        No unit
+                    </option>
+
+                    {% for unit_value, unit_label in unit_choices %}
+
+                        <option
+                            value="{{ unit_value }}"
+
+                            {% if selected_unit == unit_value %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ unit_label }}
+                        </option>
+
+                    {% endfor %}
+
+                    {% if selected_unit
+                          and selected_unit not in
+                          unit_choices | map(attribute=0) | list %}
+
+                        <option
+                            value="{{ selected_unit }}"
+                            selected
+                        >
+                            {{ selected_unit }}
+                        </option>
+
+                    {% endif %}
+
+                </select>
+
+            </div>
+
+        </div>
+
+        <div class="button-row">
+
+            <button
+                class="button"
+                type="submit"
+            >
+                Save Ingredient
+            </button>
+
+            <a
+                class="button button-secondary"
+                href="{{ url_for(
+                    'recipes.detail',
+                    id=recipe.id
+                ) }}"
+            >
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}

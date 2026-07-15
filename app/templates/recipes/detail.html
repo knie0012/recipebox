@@ -1,0 +1,595 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ recipe.title }} | RecipeBox
+{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+
+    <div>
+        <h1>{{ recipe.title }}</h1>
+
+        {% if recipe.description %}
+            <p>{{ recipe.description }}</p>
+        {% endif %}
+    </div>
+
+    {% if current_user.is_authenticated %}
+        <div class="button-row">
+            <a
+                class="button"
+                href="{{ url_for(
+                    'recipes.edit_recipe',
+                    id=recipe.id
+                ) }}"
+            >
+                Edit Recipe
+            </a>
+        </div>
+    {% endif %}
+
+</div>
+
+
+<section class="card">
+
+    <div class="section-heading">
+        <h2>Photos</h2>
+    </div>
+
+    {% if recipe.recipe_images %}
+
+        <div class="recipe-gallery">
+
+            {% for image in recipe.recipe_images %}
+
+                <figure class="recipe-image-card">
+
+                    <img
+                        class="recipe-image"
+                        src="{{ url_for(
+                            'static',
+                            filename='uploads/recipes/' ~ image.filename
+                        ) }}"
+                        alt="{{ image.caption or recipe.title }}"
+                        loading="lazy"
+                    >
+
+                    {% if image.caption %}
+
+                        <figcaption>
+                            {{ image.caption }}
+                        </figcaption>
+
+                    {% endif %}
+
+                    {% if current_user.is_authenticated %}
+
+					<div class="button-row photo-actions">
+
+					    <a
+					        class="button button-secondary button-small photo-action-button"
+					        href="{{ url_for(
+					            'recipes.edit_image',
+					            id=image.id
+					        ) }}"
+					    >
+					        Edit Caption
+					    </a>
+
+					    <form
+					        method="POST"
+					        action="{{ url_for(
+					            'recipes.delete_image',
+					            id=image.id
+					        ) }}"
+					        onsubmit="return confirm('Delete this recipe photo?');"
+					    >
+					        <button
+					            class="button button-danger button-small photo-action-button"
+					            type="submit"
+					        >
+					            Delete Photo
+					        </button>
+					    </form>
+
+					</div>
+
+                    {% endif %}
+
+                </figure>
+
+            {% endfor %}
+
+        </div>
+
+    {% else %}
+
+        <p class="muted">
+            No photos have been added.
+        </p>
+
+    {% endif %}
+
+    {% if current_user.is_authenticated %}
+
+        <form
+            class="photo-upload-form"
+            method="POST"
+            action="{{ url_for(
+                'recipes.add_image',
+                recipe_id=recipe.id
+            ) }}"
+            enctype="multipart/form-data"
+        >
+
+            <div class="form-group">
+
+                <label for="image">
+                    Add Photo
+                </label>
+
+                <input
+                    id="image"
+                    name="image"
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    required
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="caption">
+                    Caption
+                </label>
+
+                <input
+                    id="caption"
+                    name="caption"
+                    type="text"
+                    maxlength="255"
+                    placeholder="Optional"
+                >
+
+            </div>
+
+            <button
+                class="button"
+                type="submit"
+            >
+                Upload Photo
+            </button>
+
+        </form>
+
+    {% endif %}
+
+</section>
+
+<section class="card">
+
+    <h2>Recipe Information</h2>
+
+    <p class="recipe-meta">
+
+        {% if recipe.prep_time is not none %}
+            Prep: {{ recipe.prep_time }} minutes
+        {% else %}
+            Prep time not entered
+        {% endif %}
+
+        <br>
+
+        {% if recipe.cook_time is not none %}
+            Cook: {{ recipe.cook_time }} minutes
+        {% else %}
+            Cook time not entered
+        {% endif %}
+
+        <br>
+
+        {% if recipe.servings is not none %}
+            Servings: {{ recipe.servings }}
+        {% else %}
+            Servings not entered
+        {% endif %}
+
+    </p>
+
+</section>
+
+<section class="card">
+
+    <div class="page-heading">
+
+        <h2>Ingredients</h2>
+
+{% if current_user.is_authenticated %}
+
+    <a
+        class="button button-small"
+        href="{{ url_for(
+            'recipes.new_ingredient',
+            recipe_id=recipe.id
+        ) }}"
+    >
+        Add Ingredient
+    </a>
+
+{% endif %}
+
+    </div>
+
+    {% if recipe.recipe_ingredients %}
+
+        <ul class="ingredient-list">
+
+{% for item in recipe.recipe_ingredients %}
+
+    <li class="ingredient-item">
+
+        <div>
+            <strong>{{ item.position }}.</strong>
+
+            {% if item.quantity %}
+                {{ item.quantity }}
+            {% endif %}
+
+            {% if item.unit %}
+                {{ item.unit }}
+            {% endif %}
+
+            {{ item.ingredient.name }}
+        </div>
+
+{% if current_user.is_authenticated %}
+
+        <div class="ingredient-actions">
+
+			<form
+			    method="POST"
+			    action="{{ url_for(
+			        'recipes.move_ingredient',
+			        id=item.id,
+			        direction='up'
+			    ) }}"
+			    style="display: inline;"
+			>
+			    <button type="submit" aria-label="Move ingredient up">
+			        ↑
+			    </button>
+			</form>
+
+			<form
+			    method="POST"
+			    action="{{ url_for(
+			        'recipes.move_ingredient',
+			        id=item.id,
+			        direction='down'
+			    ) }}"
+			    style="display: inline;"
+			>
+			    <button type="submit" aria-label="Move ingredient down">
+			        ↓
+			    </button>
+			</form>
+
+            <a
+                class="button button-secondary button-small"
+                href="{{ url_for(
+                    'recipes.edit_ingredient',
+                    id=item.id
+                ) }}"
+            >
+                Edit
+            </a>
+
+            <form
+                method="POST"
+                action="{{ url_for(
+                    'recipes.delete_ingredient',
+                    id=item.id
+                ) }}"
+                onsubmit="return confirm(
+                    'Remove this ingredient?'
+                );"
+            >
+                <button
+                    class="button button-danger button-small"
+                    type="submit"
+                >
+                    Delete
+                </button>
+            </form>
+
+        </div>
+{% endif %}
+    </li>
+
+{% endfor %}
+
+        </ul>
+
+    {% else %}
+
+        <p>No ingredients have been added.</p>
+
+    {% endif %}
+
+</section>
+
+<section class="card">
+
+    <div class="page-heading">
+
+        <h2>Steps</h2>
+
+{% if current_user.is_authenticated %}
+
+        <a
+            class="button button-small"
+            href="{{ url_for(
+                'recipes.new_step',
+                recipe_id=recipe.id
+            ) }}"
+        >
+            Add Step
+        </a>
+{% endif %}
+    </div>
+
+    {% if recipe.recipe_steps %}
+
+        <ol class="step-list">
+
+            {% for step in recipe.recipe_steps %}
+
+                <li class="step-item">
+
+                    <div class="step-content">
+
+                        <p>
+                            {{ step.instruction }}
+                        </p>
+
+                        {% if step.timer_minutes is not none %}
+
+                            <p class="muted">
+                                Timer:
+                                {{ step.timer_minutes }}
+                                minutes
+                            </p>
+
+                        {% endif %}
+
+                    </div>
+{% if current_user.is_authenticated %}
+
+                    <div class="ingredient-actions">
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'recipes.move_step',
+                                id=step.id,
+                                direction='up'
+                            ) }}"
+                        >
+                            <button
+                                class="button button-secondary button-small"
+                                type="submit"
+                                aria-label="Move step up"
+                            >
+                                ↑
+                            </button>
+                        </form>
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'recipes.move_step',
+                                id=step.id,
+                                direction='down'
+                            ) }}"
+                        >
+                            <button
+                                class="button button-secondary button-small"
+                                type="submit"
+                                aria-label="Move step down"
+                            >
+                                ↓
+                            </button>
+                        </form>
+
+                        <a
+                            class="button button-secondary button-small"
+                            href="{{ url_for(
+                                'recipes.edit_step',
+                                id=step.id
+                            ) }}"
+                        >
+                            Edit
+                        </a>
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'recipes.delete_step',
+                                id=step.id
+                            ) }}"
+                            onsubmit="return confirm(
+                                'Delete this recipe step?'
+                            );"
+                        >
+                            <button
+                                class="button button-danger button-small"
+                                type="submit"
+                            >
+                                Delete
+                            </button>
+                        </form>
+
+                    </div>
+{% endif %}
+
+                </li>
+
+            {% endfor %}
+
+        </ol>
+
+    {% else %}
+
+        <p>
+            No recipe steps have been added.
+        </p>
+
+    {% endif %}
+
+</section>
+
+<section class="card">
+
+    <h2>Recipe Information and Activity</h2>
+
+    <div class="recipe-audit-summary">
+
+        <p class="muted">
+
+            <strong>Added by:</strong>
+
+            {% if recipe.creator %}
+                {{ recipe.creator.username }}
+            {% else %}
+                Unknown or added before user tracking
+            {% endif %}
+
+        </p>
+
+        <p class="muted">
+
+            <strong>Added:</strong>
+
+            {% if recipe.created %}
+                {{ recipe.created.strftime(
+                    "%B %-d, %Y at %-I:%M %p"
+                ) }}
+            {% else %}
+                Unknown
+            {% endif %}
+
+        </p>
+
+        <p class="muted">
+
+            <strong>Last modified:</strong>
+
+            {% if recipe.updated %}
+                {{ recipe.updated.strftime(
+                    "%B %-d, %Y at %-I:%M %p"
+                ) }}
+            {% else %}
+                Unknown
+            {% endif %}
+
+        </p>
+
+    </div>
+
+    <h3>Activity</h3>
+
+    {% if recipe.recipe_history %}
+
+        <ul class="history-list">
+
+            {% for event in recipe.recipe_history %}
+
+                <li class="history-item">
+
+                    <div class="history-heading">
+
+                        <strong>
+
+                            {% if event.user %}
+                                {{ event.user.username }}
+                            {% else %}
+                                Unknown user
+                            {% endif %}
+
+                        </strong>
+
+                        <span>
+                            {{ event.action.replace("_", " ") | title }}
+                        </span>
+
+                    </div>
+
+                    {% if event.details %}
+
+                        <div class="history-details">
+                            {{ event.details }}
+                        </div>
+
+                    {% endif %}
+
+                    <div class="history-date muted">
+
+                        {% if event.created %}
+
+                            {{ event.created.strftime(
+                                "%B %-d, %Y at %-I:%M %p"
+                            ) }}
+
+                        {% endif %}
+
+                    </div>
+
+                </li>
+
+            {% endfor %}
+
+        </ul>
+
+    {% else %}
+
+        <p class="muted">
+            No activity has been recorded for this recipe yet.
+        </p>
+
+    {% endif %}
+
+</section>
+
+{% if current_user.is_authenticated %}
+
+<section class="danger-zone">
+
+    <h2>Delete Recipe</h2>
+
+    <p>
+        Deleting this recipe will also remove its associated
+        ingredients and notes.
+    </p>
+
+    <form
+        method="POST"
+        action="{{ url_for('recipes.delete_recipe', id=recipe.id) }}"
+        onsubmit="return confirm('Permanently delete this recipe?');"
+    >
+
+        <button
+            class="button button-danger"
+            type="submit"
+        >
+            Delete Recipe
+        </button>
+
+    </form>
+
+</section>
+{% endif %}
+{% endblock %}
