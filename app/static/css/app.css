@@ -527,3 +527,51 @@ textarea:focus {
     }
 }
 
+.import-list {
+    display: grid;
+    gap: 1rem;
+}
+
+.import-item {
+    padding: 1rem;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 0.75rem;
+}
+
+.import-item .form-group:last-child {
+    margin-bottom: 0;
+}
+
+.import-ingredient-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.import-preview-image {
+    margin-bottom: 1rem;
+    border-radius: 0.5rem;
+}
+
+@media (min-width: 650px) {
+    .import-ingredient-grid {
+        grid-template-columns:
+            minmax(90px, 0.55fr)
+            minmax(140px, 0.8fr)
+            minmax(140px, 1fr)
+            minmax(220px, 1.8fr);
+    }
+}
+
+.ingredient-section-heading {
+    margin-top: 1rem;
+    padding: 0.6rem 0;
+    border-bottom: 2px solid var(--border);
+    font-size: 1.1rem;
+    font-weight: 700;
+    list-style: none;
+}
+
+.ingredient-section-heading:first-child {
+    margin-top: 0;
+}

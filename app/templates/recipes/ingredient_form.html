@@ -102,7 +102,101 @@
         </div>
 
         <div class="form-row">
+			<div class="form-group">
 
+			    <label for="section_id">
+			        Recipe Section
+			    </label>
+
+			    {% if request.method == "POST" %}
+
+			        {% set selected_section_id = request.form.get(
+			            "section_id",
+			            ""
+			        ) %}
+
+			    {% elif item and item.section_id %}
+
+			        {% set selected_section_id = item.section_id | string %}
+
+			    {% else %}
+
+			        {% set selected_section_id = "" %}
+
+			    {% endif %}
+
+			    <select
+			        id="section_id"
+			        name="section_id"
+			        onchange="toggleNewSectionField()"
+			    >
+
+			        <option
+			            value=""
+			            {% if not selected_section_id %}
+			                selected
+			            {% endif %}
+			        >
+			            No section
+			        </option>
+
+			        {% for section in sections %}
+
+			            <option
+			                value="{{ section.id }}"
+			                {% if selected_section_id
+			                      == section.id | string %}
+			                    selected
+			                {% endif %}
+			            >
+			                {{ section.name }}
+			            </option>
+
+			        {% endfor %}
+
+			        <option
+			            value="new"
+			            {% if selected_section_id == "new" %}
+			                selected
+			            {% endif %}
+			        >
+			            + Create new section
+			        </option>
+
+			    </select>
+
+			    <p class="field-help">
+			        Select an existing section or create a new one.
+			    </p>
+
+			</div>
+
+			<div
+			    class="form-group"
+			    id="new-section-group"
+			    {% if selected_section_id != "new" %}
+			        hidden
+			    {% endif %}
+			>
+
+			    <label for="new_section_name">
+			        New Section Name
+			    </label>
+
+			    <input
+			        id="new_section_name"
+			        name="new_section_name"
+			        type="text"
+			        maxlength="100"
+			        placeholder="Crust, Filling, Sauce, Topping..."
+			        value="{{ request.form.get(
+			            'new_section_name',
+			            ''
+			        ) }}"
+			    >
+
+			</div>
+			
             <div class="form-group">
 
                 <label for="quantity">
@@ -200,5 +294,36 @@
     </form>
 
 </div>
+
+<script>
+    function toggleNewSectionField() {
+        const sectionSelect = document.getElementById(
+            "section_id"
+        );
+
+        const newSectionGroup = document.getElementById(
+            "new-section-group"
+        );
+
+        const newSectionInput = document.getElementById(
+            "new_section_name"
+        );
+
+        const creatingSection =
+            sectionSelect.value === "new";
+
+        newSectionGroup.hidden = !creatingSection;
+        newSectionInput.required = creatingSection;
+
+        if (!creatingSection) {
+            newSectionInput.value = "";
+        }
+    }
+
+    document.addEventListener(
+        "DOMContentLoaded",
+        toggleNewSectionField
+    );
+</script>
 
 {% endblock %}

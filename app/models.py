@@ -170,6 +170,13 @@ class Recipes(db.Model):
         cascade="all, delete-orphan",
     )
     
+    sections: Mapped[list["RecipeSection"]] = relationship(
+        "RecipeSection",
+        back_populates="recipe",
+        cascade="all, delete-orphan",
+        order_by="RecipeSection.position",
+    )
+    
     
 class ShoppingLists(db.Model):
     __tablename__ = 'shopping_lists'
@@ -294,6 +301,7 @@ class RecipeIngredients(db.Model):
         Index(
             "ix_recipe_ingredients_position",
             "recipe_id",
+            "section_id",
             "position",
         ),
     )
@@ -321,7 +329,7 @@ class RecipeIngredients(db.Model):
     unit: Mapped[Optional[str]] = mapped_column(
         String(30)
     )
-
+    
     position: Mapped[int] = mapped_column(
         Integer,
         nullable=False,
@@ -337,6 +345,76 @@ class RecipeIngredients(db.Model):
         back_populates="recipe_ingredients",
     )
     
+    section_id: Mapped[Optional[int]] = mapped_column(
+        Integer,
+        db.ForeignKey(
+            "recipe_sections.id",
+            ondelete="SET NULL",
+        ),
+        nullable=True,
+        index=True,
+    )
+
+    recipe_section: Mapped[Optional["RecipeSection"]] = relationship(
+        "RecipeSection",
+        back_populates="ingredients",
+    )
+    
+
+class RecipeSection(db.Model):
+    __tablename__ = "recipe_sections"
+
+    __table_args__ = (
+        db.UniqueConstraint(
+            "recipe_id",
+            "name",
+            name="uq_recipe_section_name",
+        ),
+        Index(
+            "ix_recipe_sections_recipe_position",
+            "recipe_id",
+            "position",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+    )
+
+    recipe_id: Mapped[int] = mapped_column(
+        Integer,
+        db.ForeignKey(
+            "recipes.id",
+            ondelete="CASCADE",
+        ),
+        nullable=False,
+        index=True,
+    )
+
+    name: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False,
+    )
+
+    position: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=1,
+    )
+
+    recipe: Mapped["Recipes"] = relationship(
+        "Recipes",
+        back_populates="sections",
+    )
+
+    ingredients: Mapped[list["RecipeIngredients"]] = relationship(
+        "RecipeIngredients",
+        back_populates="recipe_section",
+        order_by="RecipeIngredients.position",
+        passive_deletes=True,
+    )
     
 
 class RecipeSteps(db.Model):

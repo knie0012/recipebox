@@ -42,10 +42,12 @@ def create_app():
             return None
 
     from app.auth import auth
+    from app.imports import imports
     from app.main import main
     from app.recipes import recipes
 
     app.register_blueprint(auth)
+    app.register_blueprint(imports)
     app.register_blueprint(main)
     app.register_blueprint(recipes)
 

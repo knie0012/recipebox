@@ -1,0 +1,388 @@
+{% extends "base.html" %}
+
+{% block title %}
+Review Import | RecipeBox
+{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+
+    <div>
+        <h1>Review Imported Recipe</h1>
+
+        <p class="muted">
+            Edit anything that was not extracted correctly.
+            Nothing is saved until you select Save Imported Recipe.
+        </p>
+    </div>
+
+</div>
+
+<form
+    method="POST"
+    action="{{ url_for(
+        'imports.save_import',
+        import_token=import_token
+    ) }}"
+>
+
+    <section class="card">
+
+        <h2>Recipe</h2>
+
+        <div class="form-group">
+
+            <label for="title">
+                Title
+            </label>
+
+            <input
+                id="title"
+                name="title"
+                type="text"
+                maxlength="150"
+                required
+                value="{{ imported_recipe.title }}"
+            >
+
+        </div>
+
+        <div class="form-group">
+
+            <label for="description">
+                Description
+            </label>
+
+            <textarea
+                id="description"
+                name="description"
+                rows="4"
+            >{{ imported_recipe.description or '' }}</textarea>
+
+        </div>
+
+        <div class="form-row">
+
+            <div class="form-group">
+
+                <label for="prep_time">
+                    Prep Time
+                </label>
+
+                <input
+                    id="prep_time"
+                    name="prep_time"
+                    type="number"
+                    min="0"
+                    inputmode="numeric"
+                    value="{{ imported_recipe.prep_time if imported_recipe.prep_time is not none else '' }}"
+                >
+
+            </div>
+
+            <div class="form-group">
+
+                <label for="cook_time">
+                    Cook Time
+                </label>
+
+                <input
+                    id="cook_time"
+                    name="cook_time"
+                    type="number"
+                    min="0"
+                    inputmode="numeric"
+                    value="{{ imported_recipe.cook_time if imported_recipe.cook_time is not none else '' }}"
+                >
+
+            </div>
+
+        </div>
+
+        <div class="form-group">
+
+            <label for="servings">
+                Servings
+            </label>
+
+            <input
+                id="servings"
+                name="servings"
+                type="number"
+                min="0"
+                inputmode="numeric"
+                value="{{ servings if servings is not none else '' }}"
+            >
+
+            <p class="field-help">
+                Imported yield:
+                {{ imported_recipe.servings_text or 'Not provided' }}
+            </p>
+
+        </div>
+
+        <p class="muted">
+            Source:
+            {{ imported_recipe.source_url }}
+        </p>
+
+        <p class="muted">
+            Extraction:
+            {{ imported_recipe.fetch_method }}
+            /
+            {{ imported_recipe.extraction_method }}
+        </p>
+
+    </section>
+
+
+    {% if imported_recipe.image_url %}
+
+        <section class="card">
+
+            <h2>Photo</h2>
+
+            <img
+                class="recipe-image import-preview-image"
+                src="{{ imported_recipe.image_url }}"
+                alt="{{ imported_recipe.title }}"
+            >
+
+            <label class="checkbox-label">
+
+                <input
+                    name="import_image"
+                    type="checkbox"
+                    value="yes"
+                    checked
+                >
+
+                Download this image into RecipeBox
+
+            </label>
+
+        </section>
+
+    {% endif %}
+
+
+    <section class="card">
+
+        <h2>Ingredients</h2>
+
+        <input
+            type="hidden"
+            name="ingredient_count"
+            value="{{ imported_recipe.ingredients | length }}"
+        >
+
+        <div class="import-list">
+
+            {% for item in imported_recipe.ingredients %}
+
+                <div class="import-item">
+
+                    <label class="checkbox-label">
+
+                        <input
+                            name="ingredient_{{ loop.index0 }}_include"
+                            type="checkbox"
+                            value="yes"
+                            checked
+                        >
+
+                        Keep ingredient {{ loop.index }}
+
+                    </label>
+
+                    <p class="field-help">
+                        Original: {{ item.original_text }}
+                    </p>
+
+                    <div class="import-ingredient-grid">
+
+                        <div class="form-group">
+
+                            <label for="ingredient_{{ loop.index0 }}_quantity">
+                                Quantity
+                            </label>
+
+                            <input
+                                id="ingredient_{{ loop.index0 }}_quantity"
+                                name="ingredient_{{ loop.index0 }}_quantity"
+                                type="text"
+                                maxlength="50"
+                                value="{{ item.quantity }}"
+                            >
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="ingredient_{{ loop.index0 }}_unit">
+                                Unit
+                            </label>
+
+                            <select
+                                id="ingredient_{{ loop.index0 }}_unit"
+                                name="ingredient_{{ loop.index0 }}_unit"
+                            >
+
+                                <option value="">
+                                    No unit
+                                </option>
+
+                                {% for unit_value, unit_label in unit_choices %}
+
+                                    <option
+                                        value="{{ unit_value }}"
+                                        {% if item.unit == unit_value %}
+                                            selected
+                                        {% endif %}
+                                    >
+                                        {{ unit_label }}
+                                    </option>
+
+                                {% endfor %}
+
+                            </select>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="ingredient_{{ loop.index0 }}_section">
+                                Section
+                            </label>
+
+                            <input
+                                id="ingredient_{{ loop.index0 }}_section"
+                                name="ingredient_{{ loop.index0 }}_section"
+                                type="text"
+                                maxlength="100"
+                                placeholder="Crust, Filling, Sauce, Topping..."
+                                value="{{ item.section or '' }}"
+                            >
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="ingredient_{{ loop.index0 }}_name">
+                                Ingredient
+                            </label>
+
+                            <input
+                                id="ingredient_{{ loop.index0 }}_name"
+                                name="ingredient_{{ loop.index0 }}_name"
+                                type="text"
+                                maxlength="100"
+                                required
+                                value="{{ item.name }}"
+                            >
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+
+    <section class="card">
+
+        <h2>Steps</h2>
+
+        <input
+            type="hidden"
+            name="step_count"
+            value="{{ imported_recipe.steps | length }}"
+        >
+
+        <div class="import-list">
+
+            {% for step in imported_recipe.steps %}
+
+                <div class="import-item">
+
+                    <label class="checkbox-label">
+
+                        <input
+                            name="step_{{ loop.index0 }}_include"
+                            type="checkbox"
+                            value="yes"
+                            checked
+                        >
+
+                        Keep step {{ loop.index }}
+
+                    </label>
+
+                    <div class="form-group">
+
+                        <label for="step_{{ loop.index0 }}_instruction">
+                            Instruction
+                        </label>
+
+                        <textarea
+                            id="step_{{ loop.index0 }}_instruction"
+                            name="step_{{ loop.index0 }}_instruction"
+                            rows="4"
+                            required
+                        >{{ step.instruction }}</textarea>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label for="step_{{ loop.index0 }}_timer_minutes">
+                            Timer in Minutes
+                        </label>
+
+                        <input
+                            id="step_{{ loop.index0 }}_timer_minutes"
+                            name="step_{{ loop.index0 }}_timer_minutes"
+                            type="number"
+                            min="0"
+                            inputmode="numeric"
+                            value="{{ step.timer_minutes }}"
+                        >
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+
+    <div class="button-row">
+
+        <button
+            class="button"
+            type="submit"
+        >
+            Save Imported Recipe
+        </button>
+
+        <a
+            class="button button-secondary"
+            href="{{ url_for('imports.import_url') }}"
+        >
+            Cancel Import
+        </a>
+
+    </div>
+
+</form>
+
+{% endblock %}

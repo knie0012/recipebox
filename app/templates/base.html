@@ -42,6 +42,10 @@
         <a href="{{ url_for('recipes.new_recipe') }}">
             Add Recipe
         </a>
+		
+		<a href="{{ url_for('imports.import_url') }}">
+			Import Recipe
+		</a>
 
         <span class="nav-user">
             {{ current_user.username }}

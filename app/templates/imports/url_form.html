@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}
+Import Recipe | RecipeBox
+{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+
+    <div>
+        <h1>Import Recipe</h1>
+
+        <p class="muted">
+            Paste the address of a recipe webpage.
+        </p>
+    </div>
+
+</div>
+
+<div class="card">
+
+    <form method="POST">
+
+        <div class="form-group">
+
+            <label for="source_url">
+                Recipe URL
+            </label>
+
+            <input
+                id="source_url"
+                name="source_url"
+                type="url"
+                inputmode="url"
+                autocomplete="url"
+                placeholder="https://example.com/recipe"
+                required
+                value="{{ source_url or '' }}"
+            >
+
+        </div>
+
+        <div class="button-row">
+
+            <button
+                class="button"
+                type="submit"
+            >
+                Import Recipe
+            </button>
+
+            <a
+                class="button button-secondary"
+                href="{{ url_for('main.index') }}"
+            >
+                Cancel
+            </a>
+
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}
