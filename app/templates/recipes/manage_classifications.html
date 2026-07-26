@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Classifications{% endblock %}
+
+{% block content %}
+
+<div class="classifications-page">
+
+<div class="page-header">
+    <div>
+        <h1>Manage Recipe Classifications</h1>
+        <p class="page-description">
+            Add, rename, reorder, or remove Recipe Types and Tags.
+            Deleting a classification does not delete any recipes.
+        </p>
+    </div>
+</div>
+
+
+{# =========================================================
+   RECIPE TYPES
+   ========================================================= #}
+
+<section class="classification-section">
+    <div class="section-heading">
+        <div>
+            <h2>Recipe Types</h2>
+            <p>
+                Recipe Types are displayed in the order shown below.
+            </p>
+        </div>
+
+        <span class="classification-count">
+            {{ recipe_types|length }}
+            {% if recipe_types|length == 1 %}
+                type
+            {% else %}
+                types
+            {% endif %}
+        </span>
+    </div>
+
+
+    <form
+        method="post"
+        action="{{ url_for('recipes.add_recipe_type') }}"
+        class="classification-add-form"
+    >
+        <label for="new-recipe-type">
+            Add Recipe Type
+        </label>
+
+        <div class="add-form-controls">
+            <input
+                type="text"
+                id="new-recipe-type"
+                name="name"
+                maxlength="50"
+                placeholder="Example: Breakfast"
+                required
+            >
+
+            <button type="submit" class="button button-primary">
+                Add Type
+            </button>
+        </div>
+    </form>
+
+
+    {% if recipe_types %}
+        <div class="classification-list">
+            {% for recipe_type in recipe_types %}
+                <article class="classification-item">
+
+                    <div class="classification-order-controls">
+
+                        <form
+                            method="post"
+                            action="{{ url_for(
+                                'recipes.move_recipe_type_up',
+                                id=recipe_type.id
+                            ) }}"
+                        >
+                            <button
+                                type="submit"
+                                class="icon-button"
+                                title="Move {{ recipe_type.name }} up"
+                                aria-label="Move {{ recipe_type.name }} up"
+                                {% if loop.first %}disabled{% endif %}
+                            >
+                                &#9650;
+                            </button>
+                        </form>
+
+                        <form
+                            method="post"
+                            action="{{ url_for(
+                                'recipes.move_recipe_type_down',
+                                id=recipe_type.id
+                            ) }}"
+                        >
+                            <button
+                                type="submit"
+                                class="icon-button"
+                                title="Move {{ recipe_type.name }} down"
+                                aria-label="Move {{ recipe_type.name }} down"
+                                {% if loop.last %}disabled{% endif %}
+                            >
+                                &#9660;
+                            </button>
+                        </form>
+
+                    </div>
+
+
+                    <div class="classification-main">
+
+                        <form
+                            method="post"
+                            action="{{ url_for(
+                                'recipes.rename_recipe_type',
+                                id=recipe_type.id
+                            ) }}"
+                            class="classification-rename-form"
+                        >
+                            <label
+                                for="recipe-type-{{ recipe_type.id }}"
+                                class="sr-only"
+                            >
+                                Rename {{ recipe_type.name }}
+                            </label>
+
+                            <input
+                                type="text"
+                                id="recipe-type-{{ recipe_type.id }}"
+                                name="name"
+                                value="{{ recipe_type.name }}"
+                                maxlength="50"
+                                required
+                            >
+
+                            <button
+                                type="submit"
+                                class="button button-secondary"
+                            >
+                                Save
+                            </button>
+                        </form>
+
+                        <div class="classification-usage">
+                            {{ recipe_type.recipes|length }}
+                            {% if recipe_type.recipes|length == 1 %}
+                                recipe
+                            {% else %}
+                                recipes
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+
+                    <form
+                        method="post"
+                        action="{{ url_for(
+                            'recipes.delete_recipe_type',
+                            id=recipe_type.id
+                        ) }}"
+                        class="classification-delete-form"
+                        onsubmit="
+                            return confirm(
+                                'Delete the Recipe Type &quot;{{ recipe_type.name|e }}&quot;?\n\n'
+                                + 'It is currently assigned to '
+                                + '{{ recipe_type.recipes|length }} '
+                                + '{% if recipe_type.recipes|length == 1 %}recipe{% else %}recipes{% endif %}.\n\n'
+                                + 'The recipes will not be deleted. '
+                                + 'Only this classification will be removed.'
+                            );
+                        "
+                    >
+                        <button
+                            type="submit"
+                            class="button button-danger"
+                        >
+                            Delete
+                        </button>
+                    </form>
+
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <p>No Recipe Types have been created yet.</p>
+        </div>
+    {% endif %}
+</section>
+
+
+{# =========================================================
+   TAGS
+   ========================================================= #}
+
+<section class="classification-section">
+    <div class="section-heading">
+        <div>
+            <h2>Tags</h2>
+            <p>
+                Tags are displayed alphabetically throughout the app.
+            </p>
+        </div>
+
+        <span class="classification-count">
+            {{ tags|length }}
+            {% if tags|length == 1 %}
+                tag
+            {% else %}
+                tags
+            {% endif %}
+        </span>
+    </div>
+
+
+    <form
+        method="post"
+        action="{{ url_for('recipes.add_tag') }}"
+        class="classification-add-form"
+    >
+        <label for="new-tag">
+            Add Tag
+        </label>
+
+        <div class="add-form-controls">
+            <input
+                type="text"
+                id="new-tag"
+                name="name"
+                maxlength="50"
+                placeholder="Example: Slow Cooker"
+                required
+            >
+
+            <button type="submit" class="button button-primary">
+                Add Tag
+            </button>
+        </div>
+    </form>
+
+
+    {% if tags %}
+        <div class="classification-list tag-list">
+            {% for tag in tags %}
+                <article class="classification-item tag-item">
+
+                    <div class="classification-main">
+
+                        <form
+                            method="post"
+                            action="{{ url_for(
+                                'recipes.rename_tag',
+                                id=tag.id
+                            ) }}"
+                            class="classification-rename-form"
+                        >
+                            <label
+                                for="tag-{{ tag.id }}"
+                                class="sr-only"
+                            >
+                                Rename {{ tag.name }}
+                            </label>
+
+                            <input
+                                type="text"
+                                id="tag-{{ tag.id }}"
+                                name="name"
+                                value="{{ tag.name }}"
+                                maxlength="50"
+                                required
+                            >
+
+                            <button
+                                type="submit"
+                                class="button button-secondary"
+                            >
+                                Save
+                            </button>
+                        </form>
+
+                        <div class="classification-usage">
+                            {{ tag.recipes|length }}
+                            {% if tag.recipes|length == 1 %}
+                                recipe
+                            {% else %}
+                                recipes
+                            {% endif %}
+                        </div>
+
+                    </div>
+
+
+                    <form
+                        method="post"
+                        action="{{ url_for(
+                            'recipes.delete_tag',
+                            id=tag.id
+                        ) }}"
+                        class="classification-delete-form"
+                        onsubmit="
+                            return confirm(
+                                'Delete the Tag &quot;{{ tag.name|e }}&quot;?\n\n'
+                                + 'It is currently assigned to '
+                                + '{{ tag.recipes|length }} '
+                                + '{% if tag.recipes|length == 1 %}recipe{% else %}recipes{% endif %}.\n\n'
+                                + 'The recipes will not be deleted. '
+                                + 'Only this tag will be removed.'
+                            );
+                        "
+                    >
+                        <button
+                            type="submit"
+                            class="button button-danger"
+                        >
+                            Delete
+                        </button>
+                    </form>
+
+                </article>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <p>No Tags have been created yet.</p>
+        </div>
+    {% endif %}
+</section>
+
+</div>
+{% endblock %}

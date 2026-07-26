@@ -26,6 +26,8 @@ from app.models import (
     RecipeIngredients,
     RecipeSteps,
     Recipes,
+    RecipeTypes,
+    Tags,
 )
 from app.recipes.history import (
     record_recipe_history,
@@ -75,7 +77,84 @@ def parse_servings_number(
 
     return int(match.group())
 
+def get_submitted_recipe_types() -> list[RecipeTypes]:
+    """
+    Validate submitted recipe type IDs and return the records.
+    """
 
+    raw_type_ids = request.form.getlist(
+        "recipe_type_ids"
+    )
+
+    try:
+        selected_type_ids = {
+            int(type_id)
+            for type_id in raw_type_ids
+        }
+
+    except ValueError as error:
+        raise ValueError(
+            "One or more selected recipe types are invalid."
+        ) from error
+
+    if not selected_type_ids:
+        return []
+
+    selected_types = RecipeTypes.query.filter(
+        RecipeTypes.id.in_(selected_type_ids)
+    ).all()
+
+    found_type_ids = {
+        recipe_type.id
+        for recipe_type in selected_types
+    }
+
+    if found_type_ids != selected_type_ids:
+        raise ValueError(
+            "One or more selected recipe types no longer exist."
+        )
+
+    return selected_types
+
+def get_submitted_tags() -> list[Tags]:
+    """
+    Validate submitted tag IDs and return the records.
+    """
+
+    raw_tag_ids = request.form.getlist(
+        "tag_ids"
+    )
+
+    try:
+        selected_tag_ids = {
+            int(tag_id)
+            for tag_id in raw_tag_ids
+        }
+
+    except ValueError as error:
+        raise ValueError(
+            "One or more selected tags are invalid."
+        ) from error
+
+    if not selected_tag_ids:
+        return []
+
+    selected_tags = Tags.query.filter(
+        Tags.id.in_(selected_tag_ids)
+    ).all()
+
+    found_tag_ids = {
+        tag.id
+        for tag in selected_tags
+    }
+
+    if found_tag_ids != selected_tag_ids:
+        raise ValueError(
+            "One or more selected tags no longer exist."
+        )
+
+    return selected_tags    
+    
 @imports.route(
     "/recipebox/import",
     methods=["GET", "POST"],
@@ -166,6 +245,15 @@ def review_import(import_token):
             "",
         )
     )
+    
+    recipe_types = RecipeTypes.query.order_by(
+        RecipeTypes.position,
+        RecipeTypes.name,
+    ).all()
+    
+    tags = Tags.query.order_by(
+        Tags.name
+    ).all()
 
     return render_template(
         "imports/review.html",
@@ -173,6 +261,8 @@ def review_import(import_token):
         import_token=import_token,
         unit_choices=UNIT_CHOICES,
         servings=servings,
+        recipe_types=recipe_types,
+        tags=tags,
     )
 
 
@@ -210,6 +300,28 @@ def save_import(import_token):
         ).strip()
         or None
     )
+
+    try:
+        selected_types = (
+            get_submitted_recipe_types()
+        )
+        
+        selected_tags = (
+            get_submitted_tags()
+        )
+
+    except ValueError as error:
+        flash(
+            str(error),
+            "error",
+        )
+
+        return redirect(
+            url_for(
+                "imports.review_import",
+                import_token=import_token,
+            )
+        )
 
     if not title:
         flash(
@@ -469,7 +581,10 @@ def save_import(import_token):
             servings=servings,
             created_by=current_user.id,
         )
-
+        
+        recipe.types = selected_types
+        recipe.tags = selected_tags
+        
         db.session.add(recipe)
         db.session.flush()
 
@@ -561,6 +676,28 @@ def save_import(import_token):
             "source_url",
             "",
         )
+        
+        type_names = ", ".join(
+            recipe_type.name
+            for recipe_type in selected_types
+        )
+
+        type_details = (
+            f" Recipe types: {type_names}."
+            if type_names
+            else ""
+        )
+        
+        tag_names = ", ".join(
+            tag.name
+            for tag in selected_tags
+        )
+
+        tag_details = (
+            f" Tags: {tag_names}."
+            if tag_names
+            else ""
+        )
 
         record_recipe_history(
             recipe_id=recipe.id,
@@ -570,6 +707,8 @@ def save_import(import_token):
                 f"{source_url} with "
                 f"{len(ingredient_rows)} ingredients "
                 f"and {len(step_rows)} steps."
+                f"{type_details}"
+                f"{tag_details}"
             ),
         )
 

@@ -9,6 +9,7 @@ recipes = Blueprint(
 
 
 # Import route modules only after the blueprint has been created.
+import app.recipes.routes.classifications
 import app.recipes.routes.ingredients
 import app.recipes.routes.images
 import app.recipes.routes.recipes

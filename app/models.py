@@ -78,7 +78,112 @@ class RecipeHistory(db.Model):
         foreign_keys=[user_id],
     )
 
+recipe_type_assignments = db.Table(
+    "recipe_type_assignments",
+    db.Column(
+        "recipe_id",
+        db.Integer,
+        db.ForeignKey(
+            "recipes.id",
+            ondelete="CASCADE",
+        ),
+        primary_key=True,
+    ),
+    db.Column(
+        "recipe_type_id",
+        db.Integer,
+        db.ForeignKey(
+            "recipe_types.id",
+            ondelete="CASCADE",
+        ),
+        primary_key=True,
+    ),
+)
 
+
+recipe_tag_assignments = db.Table(
+    "recipe_tag_assignments",
+    db.Column(
+        "recipe_id",
+        db.Integer,
+        db.ForeignKey(
+            "recipes.id",
+            ondelete="CASCADE",
+        ),
+        primary_key=True,
+    ),
+    db.Column(
+        "tag_id",
+        db.Integer,
+        db.ForeignKey(
+            "tags.id",
+            ondelete="CASCADE",
+        ),
+        primary_key=True,
+    ),
+)
+
+class RecipeTypes(db.Model):
+    __tablename__ = "recipe_types"
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+    )
+
+    name: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        unique=True,
+    )
+
+    position: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        server_default=text("0"),
+    )
+
+    created: Mapped[datetime.datetime] = mapped_column(
+        TIMESTAMP,
+        nullable=False,
+        server_default=text("CURRENT_TIMESTAMP"),
+    )
+
+    recipes: Mapped[list["Recipes"]] = relationship(
+        "Recipes",
+        secondary=recipe_type_assignments,
+        back_populates="types",
+    )
+
+class Tags(db.Model):
+    __tablename__ = "tags"
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+    )
+
+    name: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False,
+        unique=True,
+    )
+
+    created: Mapped[datetime.datetime] = mapped_column(
+        TIMESTAMP,
+        nullable=False,
+        server_default=text("CURRENT_TIMESTAMP"),
+    )
+
+    recipes: Mapped[list["Recipes"]] = relationship(
+        "Recipes",
+        secondary=recipe_tag_assignments,
+        back_populates="tags",
+    )
+    
+    
 class Recipes(db.Model):
     __tablename__ = "recipes"
 
@@ -126,6 +231,20 @@ class Recipes(db.Model):
         nullable=False,
         server_default=text("CURRENT_TIMESTAMP"),
         onupdate=datetime.datetime.utcnow,
+    )
+
+    types: Mapped[list["RecipeTypes"]] = relationship(
+        "RecipeTypes",
+        secondary=recipe_type_assignments,
+        back_populates="recipes",
+        order_by="RecipeTypes.position",
+    )
+
+    tags: Mapped[list["Tags"]] = relationship(
+        "Tags",
+        secondary=recipe_tag_assignments,
+        back_populates="recipes",
+        order_by="Tags.name",
     )
 
     meal_plan: Mapped[list["MealPlan"]] = relationship(

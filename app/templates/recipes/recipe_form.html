@@ -72,6 +72,79 @@
 
         </div>
 
+        <fieldset class="form-group">
+
+            <legend>
+                Recipe Types
+            </legend>
+
+            <p class="muted">
+                Select every type that applies.
+            </p>
+
+            <div class="checkbox-grid">
+
+                {% for recipe_type in recipe_types %}
+
+                    <label class="checkbox-option">
+
+                        <input
+                            type="checkbox"
+                            name="recipe_type_ids"
+                            value="{{ recipe_type.id }}"
+                            {% if recipe_type.id in selected_type_ids %}
+                                checked
+                            {% endif %}
+                        >
+
+                        <span>
+                            {{ recipe_type.name }}
+                        </span>
+
+                    </label>
+
+                {% endfor %}
+
+            </div>
+
+        </fieldset>
+		
+		<fieldset class="form-group">
+
+			<legend>
+				Tags
+			</legend>
+
+			<p class="muted">
+				Select every tag that applies.
+			</p>
+
+			<div class="checkbox-grid">
+
+				{% for tag in tags %}
+
+					<label class="checkbox-option">
+
+						<input
+							type="checkbox"
+							name="tag_ids"
+							value="{{ tag.id }}"
+							{% if tag.id in selected_tag_ids %}
+								checked
+							{% endif %}
+						>
+
+						<span>
+							{{ tag.name }}
+						</span>
+
+					</label>
+
+				{% endfor %}
+
+			</div>
+
+		</fieldset>
 
         <div class="form-group">
 

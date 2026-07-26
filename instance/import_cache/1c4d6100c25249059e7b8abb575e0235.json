@@ -1,0 +1,203 @@
+{
+  "user_id": 1,
+  "created": "2026-07-25T06:09:58.777862+00:00",
+  "recipe": {
+    "source_url": "https://recipesworthrepeating.com/apple-pumpkin-spice-cake-with-butter-rum-glaze/",
+    "extraction_method": "json_ld",
+    "title": "Apple Cinnamon Cake with Butter Rum Glaze",
+    "description": "With all these wonderful fall flavors, you're guaranteed to love this apple cinnamon cake! Apples and pumpkin mixed with ground cinnamon, clove, and nutmeg topped with a creamy butter and spiced rum glaze, this is the best fall cake recipe!",
+    "prep_time": 20,
+    "cook_time": 60,
+    "total_time": 80,
+    "servings_text": "15",
+    "image_url": "https://recipesworthrepeating.com/wp-content/uploads/2021/06/1-apple_Pumpkin_cake-3-e1479611174251.jpg",
+    "ingredients": [
+      {
+        "original_text": "1 12 ounce can of Carnation evaporated milk",
+        "quantity": "1",
+        "unit": "",
+        "name": "12 ounce can of Carnation evaporated milk",
+        "section": ""
+      },
+      {
+        "original_text": "2 1/2 cups all-purpose flour",
+        "quantity": "2 1/2",
+        "unit": "cup",
+        "name": "all-purpose flour",
+        "section": ""
+      },
+      {
+        "original_text": "1 Tablespoon white vinegar",
+        "quantity": "1",
+        "unit": "tablespoon",
+        "name": "white vinegar",
+        "section": ""
+      },
+      {
+        "original_text": "3 eggs",
+        "quantity": "3",
+        "unit": "",
+        "name": "eggs",
+        "section": ""
+      },
+      {
+        "original_text": "1 cup sugar",
+        "quantity": "1",
+        "unit": "cup",
+        "name": "sugar",
+        "section": ""
+      },
+      {
+        "original_text": "1/2 cup apple, (shredded and peeled)",
+        "quantity": "1/2",
+        "unit": "cup",
+        "name": "apple, (shredded and peeled)",
+        "section": ""
+      },
+      {
+        "original_text": "8 ounces Libby's Pumpkin Puree",
+        "quantity": "8",
+        "unit": "ounce",
+        "name": "Libby's Pumpkin Puree",
+        "section": ""
+      },
+      {
+        "original_text": "3/4 cup packed brown sugar",
+        "quantity": "3/4",
+        "unit": "cup",
+        "name": "packed brown sugar",
+        "section": ""
+      },
+      {
+        "original_text": "2/3 cup shortening, (melted Crisco)",
+        "quantity": "2/3",
+        "unit": "cup",
+        "name": "shortening, (melted Crisco)",
+        "section": ""
+      },
+      {
+        "original_text": "1 teaspoon baking soda",
+        "quantity": "1",
+        "unit": "teaspoon",
+        "name": "baking soda",
+        "section": ""
+      },
+      {
+        "original_text": "1 teaspoon baking powder",
+        "quantity": "1",
+        "unit": "teaspoon",
+        "name": "baking powder",
+        "section": ""
+      },
+      {
+        "original_text": "1 teaspoon salt",
+        "quantity": "1",
+        "unit": "teaspoon",
+        "name": "salt",
+        "section": ""
+      },
+      {
+        "original_text": "3/4 teaspoon ground cinnamon",
+        "quantity": "3/4",
+        "unit": "teaspoon",
+        "name": "ground cinnamon",
+        "section": ""
+      },
+      {
+        "original_text": "3/4 teaspoon ground allspice",
+        "quantity": "3/4",
+        "unit": "teaspoon",
+        "name": "ground allspice",
+        "section": ""
+      },
+      {
+        "original_text": "1/2 teaspoon ground clove",
+        "quantity": "1/2",
+        "unit": "teaspoon",
+        "name": "ground clove",
+        "section": ""
+      },
+      {
+        "original_text": "1/2 teaspoon ground nutmeg",
+        "quantity": "1/2",
+        "unit": "teaspoon",
+        "name": "ground nutmeg",
+        "section": ""
+      },
+      {
+        "original_text": "1/2 teaspoon vanilla extract",
+        "quantity": "1/2",
+        "unit": "teaspoon",
+        "name": "vanilla extract",
+        "section": ""
+      },
+      {
+        "original_text": "1/3 cup unsalted butter",
+        "quantity": "1/3",
+        "unit": "cup",
+        "name": "unsalted butter",
+        "section": ""
+      },
+      {
+        "original_text": "2 cups powdered sugar",
+        "quantity": "2",
+        "unit": "cup",
+        "name": "powdered sugar",
+        "section": ""
+      },
+      {
+        "original_text": "1 Tablespoon Captain Morgan Spiced Rum",
+        "quantity": "1",
+        "unit": "tablespoon",
+        "name": "Captain Morgan Spiced Rum",
+        "section": ""
+      },
+      {
+        "original_text": "2 Tablespoons Hot Water",
+        "quantity": "2",
+        "unit": "tablespoon",
+        "name": "Hot Water",
+        "section": ""
+      }
+    ],
+    "steps": [
+      {
+        "instruction": "Preheat the oven to 350°F.",
+        "timer_minutes": ""
+      },
+      {
+        "instruction": "Combine all cake ingredients in a bowl.",
+        "timer_minutes": ""
+      },
+      {
+        "instruction": "Turn your standing or electric mixer on low for 30 seconds, then turn the speed up to medium-high and mix for 3 minutes.",
+        "timer_minutes": ""
+      },
+      {
+        "instruction": "Pour your batter into the bundt cake mold.",
+        "timer_minutes": ""
+      },
+      {
+        "instruction": "Cook for 55-60 minutes, until done. 👩🏼‍🍳 Expert Tip: To ensure the cake is done, insert a toothpick into the center and if it comes out clean, it's done.",
+        "timer_minutes": ""
+      },
+      {
+        "instruction": "Heat the unsalted butter in a pan until melted.",
+        "timer_minutes": ""
+      },
+      {
+        "instruction": "Stir in the powdered sugar and spiced rum.",
+        "timer_minutes": ""
+      },
+      {
+        "instruction": "Whisk in the water and whisk until the consistency is of a thick syrup.",
+        "timer_minutes": ""
+      },
+      {
+        "instruction": "Pour on top of the cake and serve.",
+        "timer_minutes": ""
+      }
+    ],
+    "fetch_method": "requests"
+  }
+}

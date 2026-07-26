@@ -10,23 +10,25 @@ Recipes | RecipeBox
 
     <div>
         <h1>Farpoint Recipes</h1>
+
         <p class="muted">
             Browse and manage (must be logged in) your saved recipes.
         </p>
     </div>
 
-{% if current_user.is_authenticated %}
+    {% if current_user.is_authenticated %}
 
-    <a
-        class="button"
-        href="{{ url_for('recipes.new_recipe') }}"
-    >
-        Add Recipe
-    </a>
+        <a
+            class="button"
+            href="{{ url_for('recipes.new_recipe') }}"
+        >
+            Add Recipe
+        </a>
 
-{% endif %}
+    {% endif %}
 
 </div>
+
 
 {% if recipes %}
 
@@ -34,77 +36,144 @@ Recipes | RecipeBox
 
         {% for recipe in recipes %}
 
-		<article class="card recipe-card">
+            <article class="card recipe-card">
 
-		    {% if recipe.recipe_images %}
+                {% if recipe.recipe_images %}
 
-		        {% set thumbnail = recipe.recipe_images[0] %}
+                    {% set thumbnail = recipe.recipe_images[0] %}
 
-		        <a
-		            class="recipe-thumbnail-link"
-		            href="{{ url_for(
-		                'recipes.detail',
-		                id=recipe.id
-		            ) }}"
-		        >
-		            <img
-		                class="recipe-thumbnail"
-		                src="{{ url_for(
-		                    'static',
-		                    filename='uploads/recipes/' ~ thumbnail.filename
-		                ) }}"
-		                alt="{{ thumbnail.caption or recipe.title }}"
-		                loading="lazy"
-		            >
-		        </a>
+                    <a
+                        class="recipe-thumbnail-link"
+                        href="{{ url_for(
+                            'recipes.detail',
+                            id=recipe.id
+                        ) }}"
+                    >
+                        <img
+                            class="recipe-thumbnail"
+                            src="{{ url_for(
+                                'static',
+                                filename='uploads/recipes/' ~ thumbnail.filename
+                            ) }}"
+                            alt="{{ thumbnail.caption or recipe.title }}"
+                            loading="lazy"
+                        >
+                    </a>
 
-		    {% else %}
+                {% else %}
 
-		        <div class="recipe-thumbnail-placeholder">
-		            No Photo
-		        </div>
+                    <a
+                        class="recipe-thumbnail-link"
+                        href="{{ url_for(
+                            'recipes.detail',
+                            id=recipe.id
+                        ) }}"
+                        aria-label="View {{ recipe.title }}"
+                    >
+                        <div class="recipe-thumbnail-placeholder">
+                            No Photo
+                        </div>
+                    </a>
 
-		    {% endif %}
+                {% endif %}
 
-		    <div class="recipe-card-content">
 
-		        <h2>
-		            <a href="{{ url_for(
-		                'recipes.detail',
-		                id=recipe.id
-		            ) }}">
-		                {{ recipe.title }}
-		            </a>
-		        </h2>
+                <div class="recipe-card-content">
 
-		        {% if recipe.description %}
-		            <p>{{ recipe.description }}</p>
-		        {% endif %}
+                    <h2>
+                        <a
+                            href="{{ url_for(
+                                'recipes.detail',
+                                id=recipe.id
+                            ) }}"
+                        >
+                            {{ recipe.title }}
+                        </a>
+                    </h2>
 
-		        <p class="recipe-meta">
 
-		            {% if recipe.prep_time is not none %}
-		                Prep: {{ recipe.prep_time }} min
-		            {% endif %}
+                    {% if recipe.description %}
 
-		            {% if recipe.prep_time is not none
-		                  and recipe.cook_time is not none %}
-		                |
-		            {% endif %}
+                        <p class="recipe-card-description">
+                            {{ recipe.description }}
+                        </p>
 
-		            {% if recipe.cook_time is not none %}
-		                Cook: {{ recipe.cook_time }} min
-		            {% endif %}
+                    {% endif %}
 
-		            {% if recipe.servings is not none %}
-		                | Serves {{ recipe.servings }}
-		            {% endif %}
 
-		        </p>
+                    {% if recipe.types or recipe.tags %}
 
-		    </div>
+                        <div class="recipe-classifications recipe-card-classifications">
 
-		</article>
+                            {% if recipe.types %}
+
+                                <div class="recipe-type-list">
+
+                                    {% for recipe_type in recipe.types %}
+
+                                        <span class="recipe-type-badge">
+                                            {{ recipe_type.name }}
+                                        </span>
+
+                                    {% endfor %}
+
+                                </div>
+
+                            {% endif %}
+
+
+                            {% if recipe.tags %}
+
+                                <div class="recipe-tag-list">
+
+                                    {% for tag in recipe.tags %}
+
+                                        <span class="recipe-tag-badge">
+                                            {{ tag.name }}
+                                        </span>
+
+                                    {% endfor %}
+
+                                </div>
+
+                            {% endif %}
+
+                        </div>
+
+                    {% endif %}
+
+
+                    <p class="recipe-meta">
+
+                        {% if recipe.prep_time is not none %}
+                            Prep: {{ recipe.prep_time }} min
+                        {% endif %}
+
+                        {% if recipe.prep_time is not none
+                              and recipe.cook_time is not none %}
+                            |
+                        {% endif %}
+
+                        {% if recipe.cook_time is not none %}
+                            Cook: {{ recipe.cook_time }} min
+                        {% endif %}
+
+                        {% if recipe.servings is not none %}
+
+                            {% if recipe.prep_time is not none
+                                  or recipe.cook_time is not none %}
+                                |
+                            {% endif %}
+
+                            Serves {{ recipe.servings }}
+
+                        {% endif %}
+
+                    </p>
+
+                </div>
+
+            </article>
 
         {% endfor %}
 
@@ -120,22 +189,23 @@ Recipes | RecipeBox
             Add your first recipe to begin building your collection.
         </p>
 
-{% if current_user.is_authenticated %}
+        {% if current_user.is_authenticated %}
 
-    <a
-        class="button"
-        href="{{ url_for('recipes.new_recipe') }}"
-    >
-        Add Your First Recipe
-    </a>
+            <a
+                class="button"
+                href="{{ url_for('recipes.new_recipe') }}"
+            >
+                Add Your First Recipe
+            </a>
 
-{% else %}
+        {% else %}
 
-    <p>
-        No recipes have been added.
-    </p>
+            <p>
+                No recipes have been added.
+            </p>
 
-{% endif %}
+        {% endif %}
+
     </div>
 
 {% endif %}

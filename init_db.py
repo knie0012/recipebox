@@ -151,7 +151,27 @@ def create_initial_user() -> None:
     print(f'User "{username}" created successfully.')
     print(f"User ID: {user.id}")
 
+def add_user() -> None:
+    """Interactively add a new RecipeBox user."""
 
+    print()
+    print("Add New User")
+    print("------------")
+
+    username = prompt_for_username()
+    password = prompt_for_password()
+
+    user = Users(username=username)
+    user.set_password(password)
+
+    db.session.add(user)
+    db.session.commit()
+
+    print()
+    print(f'User "{username}" created successfully.')
+    print(f"User ID: {user.id}")
+    
+    
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Initialize the RecipeBox database."
@@ -174,6 +194,12 @@ def parse_arguments() -> argparse.Namespace:
         action="store_true",
         help="Display the tables after initialization.",
     )
+    
+    parser.add_argument(
+        "--add-user",
+        action="store_true",
+        help="Add a new user",
+    )
 
     return parser.parse_args()
 
@@ -190,6 +216,9 @@ def main() -> None:
 
             if args.create_user:
                 create_initial_user()
+
+            if args.add_user:
+                add_user()
 
             if args.show_tables:
                 print()

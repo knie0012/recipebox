@@ -6,18 +6,67 @@
 
 {% block content %}
 
-<div class="page-heading">
+<div class="page-heading recipe-detail-heading">
 
-    <div>
+    <div class="recipe-heading-content">
+
         <h1>{{ recipe.title }}</h1>
 
         {% if recipe.description %}
-            <p>{{ recipe.description }}</p>
+            <p class="recipe-description">
+                {{ recipe.description }}
+            </p>
         {% endif %}
+
+
+        {% if recipe.types or recipe.tags %}
+
+            <div class="recipe-classifications">
+
+                {% if recipe.types %}
+
+                    <div class="recipe-type-list">
+
+                        {% for recipe_type in recipe.types %}
+
+                            <span class="recipe-type-badge">
+                                {{ recipe_type.name }}
+                            </span>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+
+                {% if recipe.tags %}
+
+                    <div class="recipe-tag-list">
+
+                        {% for tag in recipe.tags %}
+
+                            <span class="recipe-tag-badge">
+                                {{ tag.name }}
+                            </span>
+
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+            </div>
+
+        {% endif %}
+
     </div>
 
+
     {% if current_user.is_authenticated %}
+
         <div class="button-row">
+
             <a
                 class="button"
                 href="{{ url_for(
@@ -27,7 +76,9 @@
             >
                 Edit Recipe
             </a>
+
         </div>
+
     {% endif %}
 
 </div>
@@ -665,6 +716,7 @@
         </p>
 
     </div>
+	{% if current_user.is_authenticated %}
 
     <h3>Activity</h3>
 
@@ -729,8 +781,6 @@
     {% endif %}
 
 </section>
-
-{% if current_user.is_authenticated %}
 
 <section class="danger-zone">
 

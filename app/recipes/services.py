@@ -33,6 +33,9 @@ UNIT_CHOICES = [
     ("slice", "slice"),
     ("piece", "piece"),
     ("bunch", "bunch"),
+    ("small", "small"),
+    ("medium", "medium"),
+    ("large", "large"),
 ]
 
 

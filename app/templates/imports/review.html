@@ -61,6 +61,74 @@ Review Import | RecipeBox
             >{{ imported_recipe.description or '' }}</textarea>
 
         </div>
+		
+		        <fieldset class="form-group">
+
+            <legend>
+                Recipe Types
+            </legend>
+
+            <p class="field-help">
+                Select every type that applies.
+            </p>
+
+            <div class="checkbox-grid">
+
+                {% for recipe_type in recipe_types %}
+
+                    <label class="checkbox-option">
+
+                        <input
+                            type="checkbox"
+                            name="recipe_type_ids"
+                            value="{{ recipe_type.id }}"
+                        >
+
+                        <span>
+                            {{ recipe_type.name }}
+                        </span>
+
+                    </label>
+
+                {% endfor %}
+
+            </div>
+
+        </fieldset>
+		
+		<fieldset class="form-group">
+
+			<legend>
+				Tags
+			</legend>
+
+			<p class="field-help">
+				Select any tags that apply.
+			</p>
+
+			<div class="checkbox-grid">
+
+				{% for tag in tags %}
+
+					<label class="checkbox-option">
+
+						<input
+							type="checkbox"
+							name="tag_ids"
+							value="{{ tag.id }}"
+						>
+
+						<span>
+							{{ tag.name }}
+						</span>
+
+					</label>
+
+				{% endfor %}
+
+			</div>
+
+		</fieldset>
 
         <div class="form-row">
 
