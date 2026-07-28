@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 
+
 {% block title %}
 {{ recipe.title }} | RecipeBox
 {% endblock %}
@@ -62,6 +63,7 @@
 
     </div>
 
+	
 
     {% if current_user.is_authenticated %}
 
@@ -83,6 +85,149 @@
 
 </div>
 
+<section class="card family-card">
+
+    <div class="family-card-heading">
+
+        <h2>
+            <i class="bi bi-people-fill"></i>
+            Family
+        </h2>
+
+        <button
+            id="family-favorite-button"
+            class="family-favorite-toggle{% if recipe.is_family_favorite %} is-favorite{% endif %}"
+            type="button"
+            aria-pressed="{{ 'true' if recipe.is_family_favorite else 'false' }}"
+            data-recipe-id="{{ recipe.id }}"
+        >
+            <i
+                class="bi {% if recipe.is_family_favorite %}bi-heart-fill{% else %}bi-heart{% endif %}"
+                aria-hidden="true"
+            ></i>
+
+            <span>
+                Family Favorite
+            </span>
+        </button>
+
+    </div>
+
+	<div class="family-rating-layout">
+
+	    <div class="family-rating-summary">
+
+			<div
+			    id="average-rating-stars"
+			    class="average-rating-stars"
+			    aria-hidden="true"
+			    data-average-rating="{{ recipe.displayed_average_rating or 0 }}"
+			>
+			    {% set rounded_average = (
+			        recipe.displayed_average_rating | round | int
+			        if recipe.rating_count
+			        else 0
+			    ) %}
+
+			    {% for i in range(1, 11) %}
+			        <i
+			            class="bi {% if i <= rounded_average %}bi-star-fill{% else %}bi-star{% endif %}"
+			        ></i>
+			    {% endfor %}
+			</div>
+			
+	        <div
+	            id="average-rating"
+	            class="family-rating-result"
+	        >
+	            {% if recipe.rating_count %}
+	                <span
+	                    id="average-rating-value"
+	                    class="rating-average"
+	                >
+	                    {{ "%.1f"|format(recipe.displayed_average_rating) }}
+	                </span>
+	            {% else %}
+	                <span
+	                    id="average-rating-value"
+	                    class="rating-average"
+	                >
+	                    —
+	                </span>
+	            {% endif %}
+
+	            <span class="rating-scale">
+	                / 10
+	            </span>
+	        </div>
+
+	        <div
+	            id="rating-count"
+	            class="rating-count muted"
+	        >
+	            {% if recipe.rating_count == 1 %}
+	                Rated by 1 family member
+	            {% elif recipe.rating_count > 1 %}
+	                Rated by {{ recipe.rating_count }} family members
+	            {% else %}
+	                Not yet rated
+	            {% endif %}
+	        </div>
+
+	    </div>
+
+	    <div class="family-user-rating">
+
+	        <div class="family-rating-label">
+	            Your Rating
+	        </div>
+
+	        <div
+	            id="rating-stars"
+	            class="rating-stars"
+	            data-recipe-id="{{ recipe.id }}"
+	            role="group"
+	            aria-label="Choose a rating from 1 to 10"
+	        >
+	            {% for i in range(1, 11) %}
+	                <button
+	                    class="rating-star"
+	                    type="button"
+	                    data-rating="{{ i }}"
+	                    aria-label="Rate this recipe {{ i }} out of 10"
+	                    aria-pressed="{{ 'true' if user_rating == i else 'false' }}"
+	                >
+	                    <i
+	                        class="bi {% if user_rating and i <= user_rating %}bi-star-fill{% else %}bi-star{% endif %}"
+	                        aria-hidden="true"
+	                    ></i>
+	                </button>
+	            {% endfor %}
+	        </div>
+
+	        <div
+	            id="user-rating-text"
+	            class="user-rating-text muted"
+	        >
+	            {% if user_rating %}
+	                You rated this {{ user_rating }} / 10
+	            {% else %}
+	                Select a rating
+	            {% endif %}
+	        </div>
+
+	    </div>
+
+	</div>
+
+	<div
+	    id="family-card-status"
+	    class="family-card-status"
+	    role="status"
+	    aria-live="polite"
+	></div>
+
+</section>
 
 <section class="card">
 
@@ -676,7 +821,6 @@
     <div class="recipe-audit-summary">
 
         <p class="muted">
-
             <strong>Added by:</strong>
 
             {% if recipe.creator %}
@@ -684,11 +828,9 @@
             {% else %}
                 Unknown or added before user tracking
             {% endif %}
-
         </p>
 
         <p class="muted">
-
             <strong>Added:</strong>
 
             {% if recipe.created %}
@@ -698,11 +840,9 @@
             {% else %}
                 Unknown
             {% endif %}
-
         </p>
 
         <p class="muted">
-
             <strong>Last modified:</strong>
 
             {% if recipe.updated %}
@@ -712,100 +852,109 @@
             {% else %}
                 Unknown
             {% endif %}
-
         </p>
 
     </div>
-	{% if current_user.is_authenticated %}
 
-    <h3>Activity</h3>
+    {% if current_user.is_authenticated %}
 
-    {% if recipe.recipe_history %}
+        <h3>Activity</h3>
 
-        <ul class="history-list">
+        {% if recipe.recipe_history %}
 
-            {% for event in recipe.recipe_history %}
+            <ul class="history-list">
 
-                <li class="history-item">
+                {% for event in recipe.recipe_history %}
 
-                    <div class="history-heading">
+                    <li class="history-item">
 
-                        <strong>
+                        <div class="history-heading">
 
-                            {% if event.user %}
-                                {{ event.user.username }}
-                            {% else %}
-                                Unknown user
-                            {% endif %}
+                            <strong>
+                                {% if event.user %}
+                                    {{ event.user.username }}
+                                {% else %}
+                                    Unknown user
+                                {% endif %}
+                            </strong>
 
-                        </strong>
+                            <span>
+                                {{ event.action.replace("_", " ") | title }}
+                            </span>
 
-                        <span>
-                            {{ event.action.replace("_", " ") | title }}
-                        </span>
-
-                    </div>
-
-                    {% if event.details %}
-
-                        <div class="history-details">
-                            {{ event.details }}
                         </div>
 
-                    {% endif %}
-
-                    <div class="history-date muted">
-
-                        {% if event.created %}
-
-                            {{ event.created.strftime(
-                                "%B %-d, %Y at %-I:%M %p"
-                            ) }}
-
+                        {% if event.details %}
+                            <div class="history-details">
+                                {{ event.details }}
+                            </div>
                         {% endif %}
 
-                    </div>
+                        <div class="history-date muted">
 
-                </li>
+                            {% if event.created %}
+                                {{ event.created.strftime(
+                                    "%B %-d, %Y at %-I:%M %p"
+                                ) }}
+                            {% endif %}
 
-            {% endfor %}
+                        </div>
 
-        </ul>
+                    </li>
 
-    {% else %}
+                {% endfor %}
 
-        <p class="muted">
-            No activity has been recorded for this recipe yet.
-        </p>
+            </ul>
+
+        {% else %}
+
+            <p class="muted">
+                No activity has been recorded for this recipe yet.
+            </p>
+
+        {% endif %}
 
     {% endif %}
 
 </section>
 
-<section class="danger-zone">
 
-    <h2>Delete Recipe</h2>
+{% if current_user.is_authenticated %}
 
-    <p>
-        Deleting this recipe will also remove its associated
-        ingredients and notes.
-    </p>
+    <section class="danger-zone">
 
-    <form
-        method="POST"
-        action="{{ url_for('recipes.delete_recipe', id=recipe.id) }}"
-        onsubmit="return confirm('Permanently delete this recipe?');"
-    >
+        <h2>Delete Recipe</h2>
 
-        <button
-            class="button button-danger"
-            type="submit"
+        <p>
+            Deleting this recipe will also remove its associated
+            ingredients and notes.
+        </p>
+
+        <form
+            method="POST"
+            action="{{ url_for(
+                'recipes.delete_recipe',
+                id=recipe.id
+            ) }}"
+            onsubmit="return confirm(
+                'Permanently delete this recipe?'
+            );"
         >
-            Delete Recipe
-        </button>
+            <button
+                class="button button-danger"
+                type="submit"
+            >
+                Delete Recipe
+            </button>
+        </form>
 
-    </form>
+    </section>
 
-</section>
 {% endif %}
+
+<script
+    src="{{ url_for('static', filename='js/recipe_detail.js') }}"
+    defer
+></script>
 {% endblock %}
+

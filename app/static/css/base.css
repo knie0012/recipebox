@@ -1,0 +1,63 @@
+:root {
+    --background: #f6f6f4;
+    --surface: #ffffff;
+    --text: #222222;
+    --muted: #676767;
+    --border: #deded8;
+    --primary: #315f42;
+    --primary-hover: #244a32;
+    --danger: #a52a2a;
+    --danger-hover: #801f1f;
+    --favorite: #c0392b;
+    --rating: #d49a00;
+    --success-background: #e7f5ea;
+    --success-border: #80b88b;
+    --error-background: #fbe8e8;
+    --error-border: #d49292;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+}
+
+body {
+    margin: 0;
+    background: var(--background);
+    color: var(--text);
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    line-height: 1.5;
+}
+
+a {
+    color: var(--primary);
+}
+
+.container {
+    width: min(100% - 2rem, 900px);
+    margin-inline: auto;
+}
+
+.muted {
+    color: var(--muted);
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    white-space: nowrap;
+    border: 0;
+    clip: rect(0, 0, 0, 0);
+}

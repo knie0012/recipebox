@@ -10,7 +10,9 @@ def index():
     recipes = (
         Recipes.query
         .options(
-            selectinload(Recipes.recipe_images)
+            selectinload(Recipes.recipe_images),
+            selectinload(Recipes.types),
+            selectinload(Recipes.tags),
         )
         .order_by(Recipes.title)
         .all()

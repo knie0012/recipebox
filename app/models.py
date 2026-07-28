@@ -2,7 +2,19 @@ from typing import Optional
 import datetime
 import decimal
 
-from sqlalchemy import DECIMAL, Date, ForeignKeyConstraint, Index, Integer, String, TIMESTAMP, Text, text
+from sqlalchemy import (
+    CheckConstraint,
+    DECIMAL,
+    Date,
+    ForeignKeyConstraint,
+    Index,
+    Integer,
+    String,
+    TIMESTAMP,
+    Text,
+    UniqueConstraint,
+    text,
+)
 from sqlalchemy.dialects.mysql import TINYINT
 from app import db
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -205,6 +217,41 @@ class Recipes(db.Model):
     cook_time: Mapped[Optional[int]] = mapped_column(Integer)
 
     servings: Mapped[Optional[int]] = mapped_column(Integer)
+    
+    is_family_favorite: Mapped[bool] = mapped_column(
+        db.Boolean,
+        nullable=False,
+        default=False,
+        server_default=text("0"),
+    )
+    
+    ratings: Mapped[list["RecipeRating"]] = relationship(
+        "RecipeRating",
+        back_populates="recipe",
+        cascade="all, delete-orphan",
+    )
+    
+    @property
+    def rating_count(self) -> int:
+        """Return the number of ratings submitted for this recipe."""
+        return len(self.ratings)
+
+    @property
+    def average_rating(self) -> float | None:
+        """Return the exact average rating, or None when unrated."""
+        if not self.ratings:
+            return None
+
+        return sum(rating.rating for rating in self.ratings) / len(self.ratings)
+
+    @property
+    def displayed_average_rating(self) -> float | None:
+        """Return the average rounded to one decimal place for display."""
+        if self.average_rating is None:
+            return None
+
+        return round(self.average_rating, 1)
+        
 
     created_by: Mapped[Optional[int]] = mapped_column(
     Integer,
@@ -296,6 +343,64 @@ class Recipes(db.Model):
         order_by="RecipeSection.position",
     )
     
+class RecipeRating(db.Model):
+    __tablename__ = "recipe_ratings"
+
+    __table_args__ = (
+        CheckConstraint(
+            "rating >= 1 AND rating <= 10",
+            name="ck_recipe_ratings_rating_1_to_10",
+        ),
+        UniqueConstraint(
+            "recipe_id",
+            "voter_token",
+            name="uq_recipe_ratings_recipe_voter",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+    )
+
+    recipe_id: Mapped[int] = mapped_column(
+        Integer,
+        db.ForeignKey(
+            "recipes.id",
+            ondelete="CASCADE",
+        ),
+        nullable=False,
+        index=True,
+    )
+
+    voter_token: Mapped[str] = mapped_column(
+        String(64),
+        nullable=False,
+    )
+
+    rating: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+    )
+
+    created: Mapped[datetime.datetime] = mapped_column(
+        TIMESTAMP,
+        nullable=False,
+        server_default=text("CURRENT_TIMESTAMP"),
+    )
+
+    updated: Mapped[datetime.datetime] = mapped_column(
+        TIMESTAMP,
+        nullable=False,
+        server_default=text("CURRENT_TIMESTAMP"),
+        onupdate=datetime.datetime.utcnow,
+    )
+
+    recipe: Mapped["Recipes"] = relationship(
+        "Recipes",
+        back_populates="ratings",
+    )
     
 class ShoppingLists(db.Model):
     __tablename__ = 'shopping_lists'

@@ -1,0 +1,227 @@
+.family-card {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.family-card-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.family-card-heading h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+}
+
+.family-favorite-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.25rem;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.family-favorite-toggle i {
+    font-size: 1.35rem;
+    transition:
+        transform 0.16s ease,
+        color 0.16s ease;
+}
+
+.family-favorite-toggle:hover,
+.family-favorite-toggle:focus-visible {
+    text-decoration: underline;
+}
+
+.family-favorite-toggle:hover i {
+    transform: scale(1.15);
+}
+
+.family-favorite-toggle.is-favorite i {
+    color: var(--favorite);
+}
+
+.family-favorite-toggle.favorite-pop i {
+    animation: favorite-heart-pop 0.35s ease;
+}
+
+.family-rating-layout {
+    display: grid;
+    grid-template-columns:
+        minmax(160px, 0.7fr)
+        minmax(280px, 1.3fr);
+    gap: 2rem;
+    align-items: start;
+}
+
+.family-rating-label {
+    margin-bottom: 0.45rem;
+    font-weight: 700;
+}
+
+.family-rating-result {
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+}
+
+.rating-average {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.rating-scale {
+    font-size: 1rem;
+}
+
+.rating-count,
+.user-rating-text {
+    margin-top: 0.4rem;
+}
+
+.rating-stars {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.15rem;
+}
+
+.rating-star {
+    padding: 0.1rem;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-size: 1.45rem;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+        transform 0.15s ease,
+        color 0.15s ease,
+        opacity 0.15s ease;
+}
+
+.rating-star:hover {
+    color: var(--rating);
+    transform: scale(1.13);
+}
+
+.rating-star:focus-visible {
+    color: var(--rating);
+    border-radius: 0.2rem;
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    transform: scale(1.12);
+}
+
+.rating-star .bi-star-fill {
+    color: var(--rating);
+}
+
+.rating-star:disabled,
+.family-favorite-toggle:disabled {
+    cursor: wait;
+    opacity: 0.55;
+}
+
+.average-rating-stars {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.12rem;
+    margin-bottom: 0.55rem;
+    font-size: 1.15rem;
+}
+
+.average-rating-stars .bi-star-fill {
+    color: var(--rating);
+}
+
+.family-card-status {
+    min-height: 1.25rem;
+    margin-top: -0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    opacity: 0;
+    transform: translateY(-3px);
+    transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+}
+
+.family-card-status.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.family-card-status.is-success {
+    color: #397447;
+}
+
+.family-card-status.is-error {
+    color: #b23636;
+}
+
+.recipe-family-summary {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.6rem 1rem;
+    margin-top: 0.75rem;
+    font-size: 0.9rem;
+}
+
+.recipe-index-rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.recipe-index-rating .bi-star-fill {
+    color: var(--rating);
+}
+
+.recipe-index-rating strong {
+    font-weight: 700;
+}
+
+.recipe-index-rating-count {
+    white-space: nowrap;
+}
+
+@keyframes favorite-heart-pop {
+    0% {
+        transform: scale(1);
+    }
+
+    45% {
+        transform: scale(1.4);
+    }
+
+    70% {
+        transform: scale(0.92);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@media (max-width: 650px) {
+    .family-card-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .family-rating-layout {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}

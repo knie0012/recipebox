@@ -1,0 +1,159 @@
+{
+  "user_id": 1,
+  "created": "2026-07-26T18:49:32.400315+00:00",
+  "recipe": {
+    "source_url": "https://www.chelseasmessyapron.com/coconut-chicken-curry/",
+    "extraction_method": "json_ld",
+    "title": "Coconut Chicken Curry",
+    "description": "Coconut Chicken Curry is packed with delicious flavors and is an easy one-pot meal. This curry can be made in 30 minutes or less, making it the perfect weeknight dinner!",
+    "prep_time": 15,
+    "cook_time": 15,
+    "total_time": 30,
+    "servings_text": "4",
+    "image_url": "https://www.chelseasmessyapron.com/wp-content/uploads/2015/08/Coconut-Chicken-Curry-1.jpg",
+    "ingredients": [
+      {
+        "original_text": "3 tablespoons coconut oil (divided)",
+        "quantity": "3",
+        "unit": "tablespoon",
+        "name": "coconut oil (divided)",
+        "section": ""
+      },
+      {
+        "original_text": "1/2 medium yellow onion (diced, 1/2 cup)",
+        "quantity": "1/2",
+        "unit": "",
+        "name": "medium yellow onion (diced, 1/2 cup)",
+        "section": ""
+      },
+      {
+        "original_text": "3 cloves minced garlic (about 1 and 1/2 teaspoons)",
+        "quantity": "3",
+        "unit": "clove",
+        "name": "minced garlic (about 1 and 1/2 teaspoons)",
+        "section": ""
+      },
+      {
+        "original_text": "2 tablespoons finely minced ginger (from a 1 and 1/2-inch piece)",
+        "quantity": "2",
+        "unit": "tablespoon",
+        "name": "finely minced ginger (from a 1 and 1/2-inch piece)",
+        "section": ""
+      },
+      {
+        "original_text": "2 teaspoons yellow curry powder",
+        "quantity": "2",
+        "unit": "teaspoon",
+        "name": "yellow curry powder",
+        "section": ""
+      },
+      {
+        "original_text": "3 tablespoons red curry paste (I use Thai Kitchen; reduce or increase as desired for spice levels)",
+        "quantity": "3",
+        "unit": "tablespoon",
+        "name": "red curry paste (I use Thai Kitchen; reduce or increase as desired for spice levels)",
+        "section": ""
+      },
+      {
+        "original_text": "2 teaspoons ground coriander",
+        "quantity": "2",
+        "unit": "teaspoon",
+        "name": "ground coriander",
+        "section": ""
+      },
+      {
+        "original_text": "1 large red bell pepper",
+        "quantity": "1",
+        "unit": "",
+        "name": "large red bell pepper",
+        "section": ""
+      },
+      {
+        "original_text": "1 pound boneless, skinless chicken breast (or thighs, cut into 1-inch pieces)",
+        "quantity": "1",
+        "unit": "pound",
+        "name": "boneless, skinless chicken breast (or thighs, cut into 1-inch pieces)",
+        "section": ""
+      },
+      {
+        "original_text": "Salt and pepper",
+        "quantity": "",
+        "unit": "",
+        "name": "Salt and pepper",
+        "section": ""
+      },
+      {
+        "original_text": "1 (13.5-ounce) can coconut milk (full-fat, not lite)",
+        "quantity": "1",
+        "unit": "",
+        "name": "(13.5-ounce) can coconut milk (full-fat, not lite)",
+        "section": ""
+      },
+      {
+        "original_text": "1 lime",
+        "quantity": "1",
+        "unit": "",
+        "name": "lime",
+        "section": ""
+      },
+      {
+        "original_text": "1 to 2 tablespoons brown sugar",
+        "quantity": "1",
+        "unit": "",
+        "name": "to 2 tablespoons brown sugar",
+        "section": ""
+      },
+      {
+        "original_text": "2 teaspoons fish sauce (optional)",
+        "quantity": "2",
+        "unit": "teaspoon",
+        "name": "fish sauce (optional)",
+        "section": ""
+      },
+      {
+        "original_text": "1/4 cup cilantro (and/or basil, diced)",
+        "quantity": "1/4",
+        "unit": "cup",
+        "name": "cilantro (and/or basil, diced)",
+        "section": ""
+      },
+      {
+        "original_text": "Chopped peanuts (or cashews, optional)",
+        "quantity": "",
+        "unit": "",
+        "name": "Chopped peanuts (or cashews, optional)",
+        "section": ""
+      },
+      {
+        "original_text": "Serving suggestions (see note 1)",
+        "quantity": "",
+        "unit": "",
+        "name": "Serving suggestions (see note 1)",
+        "section": ""
+      }
+    ],
+    "steps": [
+      {
+        "instruction": "Start by prepping ingredients: Dice the onion, mince the garlic, and mince the ginger. I peel the ginger with a spoon or vegetable peeler, then finely mince it. Thinly slice the red bell pepper into long vertical strips and cut those strips in half horizontally.",
+        "timer_minutes": ""
+      },
+      {
+        "instruction": "Heat 2 tablespoons coconut oil in a large deep skillet over medium-high heat. Add the onion and sauté for 3–5 minutes or until onions begin to turn golden. Add the garlic and ginger; stir to coat everything with the oil. Lower the heat to low and add in the curry powder, red curry paste, and coriander. Stir often for 2–3 minutes or until lightly toasted and fragrant.",
+        "timer_minutes": ""
+      },
+      {
+        "instruction": "Return the heat to medium high. Add the remaining 1 tablespoon coconut oil and the red bell pepper. Stir for 1–2 minutes, then add the bite-size pieces of chicken. Sprinkle on salt and pepper (I add 1 teaspoon fine sea salt and 1/2 teaspoon pepper). Cook, stirring often, for about 4–5 minutes or until the chicken is browned on both sides but not cooked through.",
+        "timer_minutes": ""
+      },
+      {
+        "instruction": "Pour in coconut milk, 1 tablespoon lime juice, and brown sugar (to taste; I start with just 1 tablespoon). Stir until chicken is cooked through (juices run clear and it is cooked to 165°F) and curry is slightly thickened (see note 2). If desired, stir in the fish sauce.",
+        "timer_minutes": ""
+      },
+      {
+        "instruction": "Serve over rice and/or with naan. Garnish individual plates with cilantro, basil, and/or crushed peanuts/cashews. Serve additional lime wedges by the side if desired.",
+        "timer_minutes": ""
+      }
+    ],
+    "fetch_method": "requests"
+  }
+}

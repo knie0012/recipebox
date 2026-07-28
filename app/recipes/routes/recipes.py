@@ -1,5 +1,8 @@
+import secrets
+
 from flask import (
     flash,
+    jsonify,
     redirect,
     render_template,
     request,
@@ -7,7 +10,12 @@ from flask import (
 )
 
 from app import db
-from app.models import Recipes, RecipeTypes, Tags
+from app.models import (
+    RecipeRating,
+    Recipes,
+    RecipeTypes,
+    Tags,
+)
 from app.recipes import recipes
 from app.recipes.services import (
     parse_optional_nonnegative_integer, UNIT_LABELS
@@ -85,13 +93,150 @@ def get_submitted_tags():
 def detail(id):
     recipe = Recipes.query.get_or_404(id)
 
+    voter_token = request.cookies.get(
+        "recipebox_voter_token"
+    )
+
+    user_rating = None
+
+    if voter_token:
+        existing_rating = RecipeRating.query.filter_by(
+            recipe_id=recipe.id,
+            voter_token=voter_token,
+        ).first()
+
+        if existing_rating:
+            user_rating = existing_rating.rating
+
     return render_template(
         "recipes/detail.html",
         recipe=recipe,
         unit_labels=UNIT_LABELS,
+        user_rating=user_rating,
+    )
+    
+
+@recipes.route(
+    "/recipebox/<int:id>/rating",
+    methods=["POST"],
+)
+def rate_recipe(id):
+    recipe = Recipes.query.get_or_404(id)
+
+    data = request.get_json(silent=True) or {}
+    rating_value = data.get("rating")
+
+    try:
+        rating_value = int(rating_value)
+    except (TypeError, ValueError):
+        return jsonify(
+            {
+                "success": False,
+                "error": (
+                    "Rating must be a whole number "
+                    "from 1 to 10."
+                ),
+            }
+        ), 400
+
+    if rating_value < 1 or rating_value > 10:
+        return jsonify(
+            {
+                "success": False,
+                "error": "Rating must be between 1 and 10.",
+            }
+        ), 400
+
+    voter_token = request.cookies.get(
+        "recipebox_voter_token"
     )
 
+    if not voter_token:
+        voter_token = secrets.token_urlsafe(32)
 
+    existing_rating = RecipeRating.query.filter_by(
+        recipe_id=recipe.id,
+        voter_token=voter_token,
+    ).first()
+
+    if existing_rating is None:
+        existing_rating = RecipeRating(
+            recipe_id=recipe.id,
+            voter_token=voter_token,
+            rating=rating_value,
+        )
+
+        db.session.add(existing_rating)
+
+    else:
+        existing_rating.rating = rating_value
+
+    db.session.commit()
+
+    response = jsonify(
+        {
+            "success": True,
+            "user_rating": existing_rating.rating,
+            "average_rating": (
+                recipe.displayed_average_rating
+            ),
+            "rating_count": recipe.rating_count,
+        }
+    )
+
+    response.set_cookie(
+        "recipebox_voter_token",
+        voter_token,
+        max_age=60 * 60 * 24 * 365 * 5,
+        httponly=True,
+        secure=request.is_secure,
+        samesite="Lax",
+    )
+
+    return response
+    
+
+@recipes.route(
+    "/recipebox/<int:id>/family-favorite",
+    methods=["POST"],
+)
+def toggle_family_favorite(id):
+    recipe = Recipes.query.get_or_404(id)
+
+    data = request.get_json(silent=True) or {}
+
+    if "is_family_favorite" not in data:
+        return jsonify(
+            {
+                "success": False,
+                "error": "Favorite status is required.",
+            }
+        ), 400
+
+    favorite_value = data["is_family_favorite"]
+
+    if not isinstance(favorite_value, bool):
+        return jsonify(
+            {
+                "success": False,
+                "error": (
+                    "Favorite status must be true or false."
+                ),
+            }
+        ), 400
+
+    recipe.is_family_favorite = favorite_value
+    db.session.commit()
+
+    return jsonify(
+        {
+            "success": True,
+            "is_family_favorite": (
+                recipe.is_family_favorite
+            ),
+        }
+    )
+    
 @recipes.route(
     "/recipebox/new",
     methods=["GET", "POST"],

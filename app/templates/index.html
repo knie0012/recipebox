@@ -79,18 +79,35 @@ Recipes | RecipeBox
 
 
                 <div class="recipe-card-content">
+					<div class="recipe-card-title-row">
 
-                    <h2>
-                        <a
-                            href="{{ url_for(
-                                'recipes.detail',
-                                id=recipe.id
-                            ) }}"
-                        >
-                            {{ recipe.title }}
-                        </a>
-                    </h2>
+					    <h2>
+					        <a
+					            href="{{ url_for(
+					                'recipes.detail',
+					                id=recipe.id
+					            ) }}"
+					        >
+					            {{ recipe.title }}
+					        </a>
+					    </h2>
 
+					    {% if recipe.is_family_favorite %}
+
+					        <span
+					            class="recipe-title-favorite"
+					            title="Family Favorite"
+					            aria-label="Family Favorite"
+					        >
+					            <i
+					                class="bi bi-heart-fill"
+					                aria-hidden="true"
+					            ></i>
+					        </span>
+
+					    {% endif %}
+
+					</div>
 
                     {% if recipe.description %}
 
@@ -99,6 +116,43 @@ Recipes | RecipeBox
                         </p>
 
                     {% endif %}
+					
+					<div class="recipe-family-summary">
+
+										    <span class="recipe-index-rating">
+
+										        <i
+										            class="bi {% if recipe.rating_count %}bi-star-fill{% else %}bi-star{% endif %}"
+										            aria-hidden="true"
+										        ></i>
+
+										        {% if recipe.rating_count %}
+
+										            <strong>
+										                {{ "%.1f"|format(
+										                    recipe.displayed_average_rating
+										                ) }}
+										            </strong>
+
+										            <span class="recipe-index-rating-count muted">
+										                {% if recipe.rating_count == 1 %}
+										                    · 1 rating
+										                {% else %}
+										                    ({{ recipe.rating_count }})
+										                {% endif %}
+										            </span>
+
+										        {% else %}
+
+										            <span class="muted">
+										                Not yet rated
+										            </span>
+
+										        {% endif %}
+
+										    </span>
+
+										</div>
 
 
                     {% if recipe.types or recipe.tags %}
@@ -170,7 +224,6 @@ Recipes | RecipeBox
                         {% endif %}
 
                     </p>
-
                 </div>
 
             </article>
