@@ -194,6 +194,52 @@ class Tags(db.Model):
         secondary=recipe_tag_assignments,
         back_populates="tags",
     )
+
+class RecipeMadeEvent(db.Model):
+    __tablename__ = "recipe_made_events"
+
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+    )
+
+    recipe_id: Mapped[int] = mapped_column(
+        Integer,
+        db.ForeignKey(
+            "recipes.id",
+            ondelete="CASCADE",
+        ),
+        nullable=False,
+        index=True,
+    )
+
+    user_id: Mapped[Optional[int]] = mapped_column(
+        Integer,
+        db.ForeignKey(
+            "users.id",
+            ondelete="SET NULL",
+        ),
+        nullable=True,
+        index=True,
+    )
+
+    made_at: Mapped[datetime.datetime] = mapped_column(
+        TIMESTAMP,
+        nullable=False,
+        server_default=text("CURRENT_TIMESTAMP"),
+        index=True,
+    )
+
+    recipe: Mapped["Recipes"] = relationship(
+        "Recipes",
+        back_populates="made_events",
+    )
+
+    user: Mapped[Optional["Users"]] = relationship(
+        "Users",
+        foreign_keys=[user_id],
+    )
     
     
 class Recipes(db.Model):
@@ -252,6 +298,20 @@ class Recipes(db.Model):
 
         return round(self.average_rating, 1)
         
+        
+    @property
+    def times_made(self) -> int:
+        """Return the number of recorded times this recipe was made."""
+        return len(self.made_events)
+	
+		
+    @property
+    def last_made_at(self) -> datetime.datetime | None:
+        """Return the most recent made date, or None if never recorded."""
+        if not self.made_events:
+            return None
+	
+        return self.made_events[0].made_at
 
     created_by: Mapped[Optional[int]] = mapped_column(
     Integer,
@@ -308,6 +368,13 @@ class Recipes(db.Model):
             RecipeImages.id.asc(),
         ),
     )
+    
+    made_events: Mapped[list["RecipeMadeEvent"]] = relationship(
+	    "RecipeMadeEvent",
+	    back_populates="recipe",
+	    cascade="all, delete-orphan",
+	    order_by=lambda: RecipeMadeEvent.made_at.desc(),
+	)
 
     recipe_history: Mapped[list["RecipeHistory"]] = relationship(
     "RecipeHistory",

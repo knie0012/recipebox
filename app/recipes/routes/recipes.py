@@ -8,21 +8,22 @@ from flask import (
     request,
     url_for,
 )
+from flask_login import current_user, login_required
 
 from app import db
 from app.models import (
+    RecipeMadeEvent,
     RecipeRating,
     Recipes,
     RecipeTypes,
     Tags,
 )
 from app.recipes import recipes
-from app.recipes.services import (
-    parse_optional_nonnegative_integer, UNIT_LABELS
-)
-from flask_login import current_user, login_required
-
 from app.recipes.history import record_recipe_history
+from app.recipes.services import (
+    parse_optional_nonnegative_integer,
+    UNIT_LABELS,
+)
 
 def get_submitted_recipe_types():
     raw_type_ids = request.form.getlist("recipe_type_ids")
@@ -88,7 +89,33 @@ def get_submitted_tags():
         )
 
     return selected_tags, selected_tag_ids    
+
+@recipes.post("/recipebox/<int:id>/made")
+@login_required
+def mark_recipe_made(id):
+    recipe = db.get_or_404(Recipes, id)
+
+    made_event = RecipeMadeEvent(
+        recipe_id=recipe.id,
+        user_id=current_user.id,
+    )
+
+    db.session.add(made_event)
+    db.session.commit()
+
+    flash(
+        f'"{recipe.title}" marked as made today.',
+        "success",
+    )
+
+    return redirect(
+        url_for(
+            "recipes.detail",
+            id=recipe.id,
+        )
+    )
     
+        
 @recipes.route("/recipebox/<int:id>")
 def detail(id):
     recipe = Recipes.query.get_or_404(id)

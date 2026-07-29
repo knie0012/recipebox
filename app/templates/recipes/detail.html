@@ -233,6 +233,24 @@
 
     <div class="section-heading">
         <h2>Photos</h2>
+		
+		{% if current_user.is_authenticated %}
+		    <form
+		        method="POST"
+		        action="{{ url_for('recipes.mark_recipe_made', id=recipe.id) }}"
+		    >
+		        <button type="submit" class="button">
+		            Made This Today
+		        </button>
+		    </form>
+		{% else %}
+		    <a
+		        href="{{ url_for('auth.login', next=request.url) }}"
+		        class="button"
+		    >
+		        Log in to mark as made
+		    </a>
+		{% endif %}
     </div>
 
     {% if recipe.recipe_images %}

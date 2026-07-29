@@ -224,7 +224,29 @@ Recipes | RecipeBox
                         {% endif %}
 
                     </p>
+					
+					<div class="recipe-made-summary">
+					    {% if recipe.last_made_at %}
+					        <span>
+					            Made {{ recipe.last_made_at|timeago }}
+					        </span>
+
+					        <span class="recipe-made-separator">
+					            ·
+					        </span>
+
+					        <span>
+					            Made {{ recipe.times_made }}
+					            {{ "time" if recipe.times_made == 1 else "times" }}.
+					        </span>
+					    {% else %}
+					        <span>Never made</span>
+					    {% endif %}
+					</div>
+					
                 </div>
+				
+				
 
             </article>
 
