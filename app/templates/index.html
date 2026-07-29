@@ -30,12 +30,111 @@ Recipes | RecipeBox
 </div>
 
 
+<form
+    id="recipe-search-form"
+    method="GET"
+    action="{{ url_for('main.index') }}"
+    class="recipe-search-form"
+>
+    <input
+        id="recipe-search"
+        type="search"
+        name="q"
+        value="{{ search }}"
+        placeholder="Search recipes..."
+        autocomplete="off"
+        aria-label="Search recipes"
+    >
+
+    <select
+        name="sort"
+        onchange="this.form.requestSubmit()"
+        aria-label="Sort recipes"
+    >
+        <option
+            value="title"
+            {% if sort == "title" %}selected{% endif %}
+        >
+            Alphabetical
+        </option>
+
+        <option
+            value="recent"
+            {% if sort == "recent" %}selected{% endif %}
+        >
+            Recently Added
+        </option>
+
+        <option
+            value="last_made"
+            {% if sort == "last_made" %}selected{% endif %}
+        >
+            Last Made
+        </option>
+
+        <option
+            value="most_made"
+            {% if sort == "most_made" %}selected{% endif %}
+        >
+            Most Made
+        </option>
+
+        <option
+            value="rating"
+            {% if sort == "rating" %}selected{% endif %}
+        >
+            Highest Rated
+        </option>
+    </select>
+
+    <input
+        id="sort-direction"
+        type="hidden"
+        name="dir"
+        value="{{ direction }}"
+    >
+
+    <button
+        id="sort-direction-button"
+        class="sort-direction-button"
+        type="button"
+        aria-label="Reverse sort order"
+        title="Reverse sort order"
+    >
+	{% if direction == "asc" %}
+	    <i class="bi bi-sort-down"></i>
+	{% else %}
+	    <i class="bi bi-sort-up"></i>
+	{% endif %}
+    </button>
+
+    {% if search or sort != "title" or direction != "asc" %}
+        <a href="{{ url_for('main.index') }}">
+            Clear
+        </a>
+    {% endif %}
+</form>
+
+
 {% if recipes %}
 
     <div class="recipe-list">
 
         {% for recipe in recipes %}
+		{% if search and match_reasons.get(recipe.id) %}
+		    <div class="recipe-match-reasons">
+		        <div class="recipe-match-heading">
+		            <i class="bi bi-search"></i>
+		            Why this matched
+		        </div>
 
+		        <ul>
+		            {% for reason in match_reasons[recipe.id] %}
+		                <li>{{ reason }}</li>
+		            {% endfor %}
+		        </ul>
+		    </div>
+		{% endif %}
             <article class="card recipe-card">
 
                 {% if recipe.recipe_images %}
@@ -79,35 +178,37 @@ Recipes | RecipeBox
 
 
                 <div class="recipe-card-content">
-					<div class="recipe-card-title-row">
 
-					    <h2>
-					        <a
-					            href="{{ url_for(
-					                'recipes.detail',
-					                id=recipe.id
-					            ) }}"
-					        >
-					            {{ recipe.title }}
-					        </a>
-					    </h2>
+                    <div class="recipe-card-title-row">
 
-					    {% if recipe.is_family_favorite %}
+                        <h2>
+                            <a
+                                href="{{ url_for(
+                                    'recipes.detail',
+                                    id=recipe.id
+                                ) }}"
+                            >
+                                {{ recipe.title }}
+                            </a>
+                        </h2>
 
-					        <span
-					            class="recipe-title-favorite"
-					            title="Family Favorite"
-					            aria-label="Family Favorite"
-					        >
-					            <i
-					                class="bi bi-heart-fill"
-					                aria-hidden="true"
-					            ></i>
-					        </span>
+                        {% if recipe.is_family_favorite %}
 
-					    {% endif %}
+                            <span
+                                class="recipe-title-favorite"
+                                title="Family Favorite"
+                                aria-label="Family Favorite"
+                            >
+                                <i
+                                    class="bi bi-heart-fill"
+                                    aria-hidden="true"
+                                ></i>
+                            </span>
 
-					</div>
+                        {% endif %}
+
+                    </div>
+
 
                     {% if recipe.description %}
 
@@ -116,43 +217,46 @@ Recipes | RecipeBox
                         </p>
 
                     {% endif %}
-					
-					<div class="recipe-family-summary">
 
-										    <span class="recipe-index-rating">
 
-										        <i
-										            class="bi {% if recipe.rating_count %}bi-star-fill{% else %}bi-star{% endif %}"
-										            aria-hidden="true"
-										        ></i>
+                    <div class="recipe-family-summary">
 
-										        {% if recipe.rating_count %}
+                        <span class="recipe-index-rating">
 
-										            <strong>
-										                {{ "%.1f"|format(
-										                    recipe.displayed_average_rating
-										                ) }}
-										            </strong>
+                            <i
+                                class="bi {% if recipe.rating_count %}bi-star-fill{% else %}bi-star{% endif %}"
+                                aria-hidden="true"
+                            ></i>
 
-										            <span class="recipe-index-rating-count muted">
-										                {% if recipe.rating_count == 1 %}
-										                    · 1 rating
-										                {% else %}
-										                    ({{ recipe.rating_count }})
-										                {% endif %}
-										            </span>
+                            {% if recipe.rating_count %}
 
-										        {% else %}
+                                <strong>
+                                    {{ "%.1f"|format(
+                                        recipe.displayed_average_rating
+                                    ) }}
+                                </strong>
 
-										            <span class="muted">
-										                Not yet rated
-										            </span>
+                                <span class="recipe-index-rating-count muted">
 
-										        {% endif %}
+                                    {% if recipe.rating_count == 1 %}
+                                        · (1 rating)
+                                    {% else %}
+                                        ({{ recipe.rating_count }} ratings)
+                                    {% endif %}
 
-										    </span>
+                                </span>
 
-										</div>
+                            {% else %}
+
+                                <span class="muted">
+                                    Not yet rated
+                                </span>
+
+                            {% endif %}
+
+                        </span>
+
+                    </div>
 
 
                     {% if recipe.types or recipe.tags %}
@@ -224,29 +328,37 @@ Recipes | RecipeBox
                         {% endif %}
 
                     </p>
-					
-					<div class="recipe-made-summary">
-					    {% if recipe.last_made_at %}
-					        <span>
-					            Made {{ recipe.last_made_at|timeago }}
-					        </span>
 
-					        <span class="recipe-made-separator">
-					            ·
-					        </span>
 
-					        <span>
-					            Made {{ recipe.times_made }}
-					            {{ "time" if recipe.times_made == 1 else "times" }}.
-					        </span>
-					    {% else %}
-					        <span>Never made</span>
-					    {% endif %}
-					</div>
-					
+                    <div class="recipe-made-summary">
+
+                        {% if recipe.last_made_at %}
+
+                            <span>
+                                Made {{ recipe.last_made_at|timeago }}
+                            </span>
+
+                            <span class="recipe-made-separator">
+                                ·
+                            </span>
+
+                            <span>
+                                Made {{ recipe.times_made }}
+                                {{ "time" if recipe.times_made == 1 else "times" }}.
+                            </span>
+
+                        {% else %}
+
+                            <span>
+                                Never made
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+
                 </div>
-				
-				
 
             </article>
 
@@ -258,31 +370,86 @@ Recipes | RecipeBox
 
     <div class="card">
 
-        <h2>No recipes yet</h2>
+        {% if search %}
 
-        <p>
-            Add your first recipe to begin building your collection.
-        </p>
+            <h2>No recipes found</h2>
 
-        {% if current_user.is_authenticated %}
+            <p>
+                No recipes matched “{{ search }}”.
+            </p>
 
-            <a
-                class="button"
-                href="{{ url_for('recipes.new_recipe') }}"
-            >
-                Add Your First Recipe
+            <a href="{{ url_for('main.index') }}">
+                Clear search
             </a>
 
         {% else %}
 
+            <h2>No recipes yet</h2>
+
             <p>
-                No recipes have been added.
+                Add your first recipe to begin building your collection.
             </p>
+
+            {% if current_user.is_authenticated %}
+
+                <a
+                    class="button"
+                    href="{{ url_for('recipes.new_recipe') }}"
+                >
+                    Add Your First Recipe
+                </a>
+
+            {% else %}
+
+                <p>
+                    No recipes have been added.
+                </p>
+
+            {% endif %}
 
         {% endif %}
 
     </div>
 
+
+	
 {% endif %}
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("recipe-search-form");
+    const search = document.getElementById("recipe-search");
+    const directionInput = document.getElementById(
+        "sort-direction"
+    );
+    const directionButton = document.getElementById(
+        "sort-direction-button"
+    );
+
+    let timer = null;
+
+    search.addEventListener("input", () => {
+        clearTimeout(timer);
+
+        timer = setTimeout(() => {
+            form.requestSubmit();
+        }, 400);
+    });
+
+    form.addEventListener("submit", () => {
+        clearTimeout(timer);
+    });
+
+    directionButton.addEventListener("click", () => {
+        directionInput.value =
+            directionInput.value === "asc"
+                ? "desc"
+                : "asc";
+
+        form.requestSubmit();
+    });
+});
+</script>
 
 {% endblock %}
