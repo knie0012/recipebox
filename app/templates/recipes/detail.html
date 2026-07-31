@@ -64,24 +64,34 @@
     </div>
 
 	
+	<div class="button-row">
 
-    {% if current_user.is_authenticated %}
+	    <a
+	        class="button cooking-start-button"
+	        href="{{ url_for(
+	            'recipes.cook_recipe',
+	            id=recipe.id
+	        ) }}"
+	    >
+	        <i class="bi bi-play-fill"></i>
+	        Start Cooking
+	    </a>
 
-        <div class="button-row">
+	    {% if current_user.is_authenticated %}
 
-            <a
-                class="button"
-                href="{{ url_for(
-                    'recipes.edit_recipe',
-                    id=recipe.id
-                ) }}"
-            >
-                Edit Recipe
-            </a>
+	        <a
+	            class="button"
+	            href="{{ url_for(
+	                'recipes.edit_recipe',
+	                id=recipe.id
+	            ) }}"
+	        >
+	            Edit Recipe
+	        </a>
 
-        </div>
+	    {% endif %}
 
-    {% endif %}
+	</div>
 
 </div>
 

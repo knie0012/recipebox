@@ -143,6 +143,16 @@ def detail(id):
     )
     
 
+@recipes.route("/recipebox/<int:id>/cook")
+def cook_recipe(id):
+    recipe = Recipes.query.get_or_404(id)
+
+    return render_template(
+        "recipes/cooking.html",
+        recipe=recipe,
+        unit_labels=UNIT_LABELS,
+    )
+    
 @recipes.route(
     "/recipebox/<int:id>/rating",
     methods=["POST"],

@@ -1,0 +1,678 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Cooking {{ recipe.title }} | RecipeBox
+{% endblock %}
+
+
+{% block body_class %}
+cooking-mode-page
+{% endblock %}
+
+
+{% block site_header %}
+{% endblock %}
+
+
+{% block main_class %}
+cooking-mode-main
+{% endblock %}
+
+
+{% block content %}
+
+<div
+    id="cooking-app"
+    class="cooking-app"
+    data-recipe-id="{{ recipe.id }}"
+>
+
+    <header class="cooking-header">
+
+        <a
+            class="cooking-exit-button"
+            href="{{ url_for(
+                'recipes.detail',
+                id=recipe.id
+            ) }}"
+        >
+            <i class="bi bi-x-lg"></i>
+            Exit
+        </a>
+
+        <div
+            id="wake-lock-status"
+            class="wake-lock-status"
+            role="status"
+            aria-live="polite"
+        >
+            <i class="bi bi-sun"></i>
+            <span>Activating screen awake mode…</span>
+        </div>
+
+    </header>
+
+
+    <section class="cooking-title-section">
+
+        <div class="cooking-mode-label">
+            Cooking Mode
+        </div>
+
+        <h1>{{ recipe.title }}</h1>
+
+        {% if recipe.description %}
+            <p>{{ recipe.description }}</p>
+        {% endif %}
+
+    </section>
+
+
+    <section
+        id="ingredient-stage"
+        class="cooking-stage is-active"
+    >
+
+        <div class="cooking-section-heading">
+
+            <div>
+                <div class="cooking-step-label">
+                    Preparation
+                </div>
+
+                <h2>Gather Ingredients</h2>
+            </div>
+
+			<button
+			    id="reset-cooking-progress"
+			    class="cooking-text-button"
+			    type="button"
+			>
+			    Start Over
+			</button>
+
+        </div>
+
+
+        {% if recipe.recipe_ingredients %}
+
+		{% set unsectioned_ingredients = (
+		    recipe.recipe_ingredients
+		    | selectattr("section_id", "none")
+		    | list
+		) %}
+
+		<div class="cooking-ingredient-groups">
+
+		    {% set ingredient_counter = namespace(value=0) %}
+
+		    {% if unsectioned_ingredients %}
+
+		        <section class="cooking-ingredient-group">
+
+		            {% if recipe.sections %}
+		                <h3 class="cooking-ingredient-group-heading">
+		                    Ingredients
+		                </h3>
+		            {% endif %}
+
+		            <div class="cooking-ingredient-group-list">
+
+		                {% for recipe_ingredient in unsectioned_ingredients %}
+
+		                    <label class="cooking-ingredient">
+
+		                        <input
+		                            class="cooking-ingredient-checkbox"
+		                            type="checkbox"
+		                            data-ingredient-index="{{ ingredient_counter.value }}"
+		                        >
+
+		                        <span class="cooking-checkbox-display">
+		                            <i class="bi bi-check-lg"></i>
+		                        </span>
+
+		                        <span class="cooking-ingredient-text">
+
+		                            {% if recipe_ingredient.quantity %}
+		                                <strong>
+		                                    {{ recipe_ingredient.quantity }}
+		                                </strong>
+		                            {% endif %}
+
+		                            {% if recipe_ingredient.unit %}
+		                                {{ unit_labels.get(
+		                                    recipe_ingredient.unit,
+		                                    recipe_ingredient.unit
+		                                ) }}
+		                            {% endif %}
+
+		                            {% if recipe_ingredient.ingredient %}
+		                                {{ recipe_ingredient.ingredient.name }}
+		                            {% endif %}
+
+		                            {% if recipe_ingredient.preparation %}
+		                                <span class="muted">
+		                                    — {{ recipe_ingredient.preparation }}
+		                                </span>
+		                            {% endif %}
+
+		                        </span>
+
+		                    </label>
+
+		                    {% set ingredient_counter.value =
+		                        ingredient_counter.value + 1
+		                    %}
+
+		                {% endfor %}
+
+		            </div>
+
+		        </section>
+
+		    {% endif %}
+
+
+		    {% for section in recipe.sections %}
+
+		        {% if section.ingredients %}
+
+		            <section class="cooking-ingredient-group">
+
+		                <h3 class="cooking-ingredient-group-heading">
+		                    {{ section.name }}
+		                </h3>
+
+		                <div class="cooking-ingredient-group-list">
+
+		                    {% for recipe_ingredient in section.ingredients %}
+
+		                        <label class="cooking-ingredient">
+
+		                            <input
+		                                class="cooking-ingredient-checkbox"
+		                                type="checkbox"
+		                                data-ingredient-index="{{ ingredient_counter.value }}"
+		                            >
+
+		                            <span class="cooking-checkbox-display">
+		                                <i class="bi bi-check-lg"></i>
+		                            </span>
+
+		                            <span class="cooking-ingredient-text">
+
+		                                {% if recipe_ingredient.quantity %}
+		                                    <strong>
+		                                        {{ recipe_ingredient.quantity }}
+		                                    </strong>
+		                                {% endif %}
+
+		                                {% if recipe_ingredient.unit %}
+		                                    {{ unit_labels.get(
+		                                        recipe_ingredient.unit,
+		                                        recipe_ingredient.unit
+		                                    ) }}
+		                                {% endif %}
+
+		                                {% if recipe_ingredient.ingredient %}
+		                                    {{ recipe_ingredient.ingredient.name }}
+		                                {% endif %}
+
+		                                {% if recipe_ingredient.preparation %}
+		                                    <span class="muted">
+		                                        — {{ recipe_ingredient.preparation }}
+		                                    </span>
+		                                {% endif %}
+
+		                            </span>
+
+		                        </label>
+
+		                        {% set ingredient_counter.value =
+		                            ingredient_counter.value + 1
+		                        %}
+
+		                    {% endfor %}
+
+		                </div>
+
+		            </section>
+
+		        {% endif %}
+
+		    {% endfor %}
+
+		</div>
+
+        {% else %}
+
+            <p class="cooking-empty-message">
+                This recipe does not have any ingredients entered.
+            </p>
+
+        {% endif %}
+
+
+        <button
+            id="begin-cooking-button"
+            class="button cooking-primary-button"
+            type="button"
+        >
+            Begin Steps
+            <i class="bi bi-arrow-right"></i>
+        </button>
+
+    </section>
+
+
+    <section
+        id="step-stage"
+        class="cooking-stage"
+        hidden
+    >
+
+        {% if recipe.recipe_steps %}
+
+		<div class="cooking-progress-header">
+
+		    <div class="cooking-progress-position">
+		        Step
+		        <span id="current-step-number">1</span>
+		        of
+		        <span id="total-step-count">
+		            {{ recipe.recipe_steps | length }}
+		        </span>
+		    </div>
+
+		    <div class="cooking-progress-actions">
+
+		        <div
+		            id="step-progress-percent"
+		            class="cooking-progress-percent"
+		        >
+		            0%
+		        </div>
+
+		        <button
+		            id="reset-step-progress"
+		            class="cooking-text-button cooking-reset-step-button"
+		            type="button"
+		        >
+		            Start Over
+		        </button>
+
+		    </div>
+
+		</div>
+
+            <div class="cooking-progress-track">
+                <div
+                    id="step-progress-bar"
+                    class="cooking-progress-bar"
+                ></div>
+            </div>
+
+			<div class="cooking-ingredient-reference">
+
+			    <button
+			        id="toggle-step-ingredients"
+			        class="cooking-ingredient-reference-button"
+			        type="button"
+			        aria-expanded="false"
+			        aria-controls="step-ingredient-panel"
+			    >
+			        <span>
+			            <i class="bi bi-basket2-fill"></i>
+			            Ingredients
+			        </span>
+
+			        <i
+			            id="ingredient-reference-chevron"
+			            class="bi bi-chevron-down"
+			            aria-hidden="true"
+			        ></i>
+			    </button>
+
+
+			    <div
+			        id="step-ingredient-panel"
+			        class="cooking-ingredient-reference-panel"
+			        hidden
+			    >
+
+			        {% if recipe.recipe_ingredients %}
+
+			            {% set unsectioned_ingredients = (
+			                recipe.recipe_ingredients
+			                | selectattr("section_id", "none")
+			                | list
+			            ) %}
+
+			            <div class="cooking-reference-groups">
+
+			                {% set reference_counter = namespace(value=0) %}
+
+			                {% if unsectioned_ingredients %}
+
+			                    <section class="cooking-reference-group">
+
+			                        {% if recipe.sections %}
+			                            <h3 class="cooking-reference-group-heading">
+			                                Ingredients
+			                            </h3>
+			                        {% endif %}
+
+			                        <div class="cooking-reference-group-list">
+
+			                            {% for recipe_ingredient in unsectioned_ingredients %}
+
+			                                <label class="cooking-reference-ingredient">
+
+			                                    <input
+			                                        class="cooking-reference-checkbox"
+			                                        type="checkbox"
+			                                        data-ingredient-index="{{ reference_counter.value }}"
+			                                    >
+
+			                                    <span class="cooking-reference-check">
+			                                        <i class="bi bi-check-lg"></i>
+			                                    </span>
+
+			                                    <span class="cooking-reference-text">
+
+			                                        {% if recipe_ingredient.quantity %}
+			                                            <strong>
+			                                                {{ recipe_ingredient.quantity }}
+			                                            </strong>
+			                                        {% endif %}
+
+			                                        {% if recipe_ingredient.unit %}
+			                                            {{ unit_labels.get(
+			                                                recipe_ingredient.unit,
+			                                                recipe_ingredient.unit
+			                                            ) }}
+			                                        {% endif %}
+
+			                                        {% if recipe_ingredient.ingredient %}
+			                                            {{ recipe_ingredient.ingredient.name }}
+			                                        {% endif %}
+
+			                                        {% if recipe_ingredient.preparation %}
+			                                            <span class="muted">
+			                                                — {{ recipe_ingredient.preparation }}
+			                                            </span>
+			                                        {% endif %}
+
+			                                    </span>
+
+			                                </label>
+
+			                                {% set reference_counter.value =
+			                                    reference_counter.value + 1
+			                                %}
+
+			                            {% endfor %}
+
+			                        </div>
+
+			                    </section>
+
+			                {% endif %}
+
+
+			                {% for section in recipe.sections %}
+
+			                    {% if section.ingredients %}
+
+			                        <section class="cooking-reference-group">
+
+			                            <h3 class="cooking-reference-group-heading">
+			                                {{ section.name }}
+			                            </h3>
+
+			                            <div class="cooking-reference-group-list">
+
+			                                {% for recipe_ingredient in section.ingredients %}
+
+			                                    <label class="cooking-reference-ingredient">
+
+			                                        <input
+			                                            class="cooking-reference-checkbox"
+			                                            type="checkbox"
+			                                            data-ingredient-index="{{ reference_counter.value }}"
+			                                        >
+
+			                                        <span class="cooking-reference-check">
+			                                            <i class="bi bi-check-lg"></i>
+			                                        </span>
+
+			                                        <span class="cooking-reference-text">
+
+			                                            {% if recipe_ingredient.quantity %}
+			                                                <strong>
+			                                                    {{ recipe_ingredient.quantity }}
+			                                                </strong>
+			                                            {% endif %}
+
+			                                            {% if recipe_ingredient.unit %}
+			                                                {{ unit_labels.get(
+			                                                    recipe_ingredient.unit,
+			                                                    recipe_ingredient.unit
+			                                                ) }}
+			                                            {% endif %}
+
+			                                            {% if recipe_ingredient.ingredient %}
+			                                                {{ recipe_ingredient.ingredient.name }}
+			                                            {% endif %}
+
+			                                            {% if recipe_ingredient.preparation %}
+			                                                <span class="muted">
+			                                                    — {{ recipe_ingredient.preparation }}
+			                                                </span>
+			                                            {% endif %}
+
+			                                        </span>
+
+			                                    </label>
+
+			                                    {% set reference_counter.value =
+			                                        reference_counter.value + 1
+			                                    %}
+
+			                                {% endfor %}
+
+			                            </div>
+
+			                        </section>
+
+			                    {% endif %}
+
+			                {% endfor %}
+
+			            </div>
+
+			        {% else %}
+
+			            <p class="cooking-empty-message">
+			                No ingredients have been entered.
+			            </p>
+
+			        {% endif %}
+
+			    </div>
+
+			</div>
+
+
+            <div id="cooking-steps">
+
+                {% for step in recipe.recipe_steps %}
+
+                    <article
+                        class="cooking-step{% if loop.first %} is-active{% endif %}"
+                        data-step-index="{{ loop.index0 }}"
+                        {% if not loop.first %}hidden{% endif %}
+                    >
+
+                        <div class="cooking-step-number">
+                            Step {{ loop.index }}
+                        </div>
+
+                        <div class="cooking-step-instruction">
+                            {{ step.instruction }}
+                        </div>
+
+                        {% if step.timer_minutes %}
+                            <div class="cooking-step-timer">
+
+                                <i class="bi bi-clock"></i>
+
+                                {{ step.timer_minutes }}
+                                minute{% if step.timer_minutes != 1 %}s{% endif %}
+
+                            </div>
+                        {% endif %}
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+
+            <nav
+                class="cooking-navigation"
+                aria-label="Cooking step navigation"
+            >
+
+                <button
+                    id="previous-step-button"
+                    class="button cooking-navigation-button"
+                    type="button"
+                    disabled
+                >
+                    <i class="bi bi-arrow-left"></i>
+                    Previous
+                </button>
+
+                <button
+                    id="next-step-button"
+                    class="button cooking-navigation-button cooking-next-button"
+                    type="button"
+                >
+                    Next
+                    <i class="bi bi-arrow-right"></i>
+                </button>
+
+            </nav>
+
+
+            <div
+                id="cooking-finished-panel"
+                class="cooking-finished-panel"
+                hidden
+            >
+
+                <i class="bi bi-check-circle-fill"></i>
+
+                <h2>Finished cooking!</h2>
+
+                <p>
+                    You reached the end of
+                    <strong>{{ recipe.title }}</strong>.
+                </p>
+
+                {% if current_user.is_authenticated %}
+
+                    <form
+                        method="POST"
+                        action="{{ url_for(
+                            'recipes.mark_recipe_made',
+                            id=recipe.id
+                        ) }}"
+                    >
+                        <button
+                            class="button cooking-primary-button"
+                            type="submit"
+                        >
+                            <i class="bi bi-check-lg"></i>
+                            Mark as Made Today
+                        </button>
+                    </form>
+
+                {% else %}
+
+                    <a
+                        class="button cooking-primary-button"
+                        href="{{ url_for(
+                            'auth.login',
+                            next=url_for(
+                                'recipes.cook_recipe',
+                                id=recipe.id
+                            )
+                        ) }}"
+                    >
+                        Log in to mark as made
+                    </a>
+
+                {% endif %}
+
+                <a
+                    class="cooking-return-link"
+                    href="{{ url_for(
+                        'recipes.detail',
+                        id=recipe.id
+                    ) }}"
+                >
+                    Return to recipe
+                </a>
+
+            </div>
+
+        {% else %}
+
+            <div class="cooking-empty-message">
+
+                <h2>No steps entered</h2>
+
+                <p>
+                    This recipe does not have any cooking steps yet.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+
+    <footer class="cooking-footer">
+
+        <button
+            id="wake-lock-button"
+            class="cooking-wake-button"
+            type="button"
+        >
+            <i class="bi bi-sun"></i>
+            Keep Screen Awake
+        </button>
+
+    </footer>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script
+    src="{{ url_for(
+        'static',
+        filename='js/cooking.js'
+    ) }}"
+    defer
+></script>
+
+{% endblock %}
