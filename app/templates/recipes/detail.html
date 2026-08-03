@@ -426,8 +426,10 @@
 
 </section>
 
-<section class="card">
-
+<section
+    id="ingredients"
+    class="card"
+>
     <div class="page-heading">
 
         <h2>Ingredients</h2>
@@ -458,17 +460,42 @@
 
         {% if unsectioned_ingredients %}
 
-            <ul class="ingredient-list">
+            <ul
+				class="ingredient-list sortable-ingredient-list"
+				data-recipe-id="{{ recipe.id }}"
+				data-section-id=""
+			>
 
-                {% for item in unsectioned_ingredients %}
+				{% for item in unsectioned_ingredients %}
 
-                    <li class="ingredient-item">
+					<li
+						class="ingredient-item sortable-item"
+						data-item-id="{{ item.id }}"
+						>
+						{% if current_user.is_authenticated %}
+
+    <button
+        class="drag-handle"
+        type="button"
+        aria-label="Drag to reorder ingredient"
+        title="Drag to reorder"
+    >
+        <i
+            class="bi bi-grip-vertical"
+            aria-hidden="true"
+        ></i>
+    </button>
+
+{% endif %}
+					
+					
+					
 
                         <div class="ingredient-description">
 
-                            <strong>
-                                {{ item.position }}.
-                            </strong>
+                            <strong class="ingredient-position">
+								{{ item.position }}.
+							</strong>
 
                             {% if item.quantity %}
 
@@ -498,40 +525,6 @@
                         {% if current_user.is_authenticated %}
 
                             <div class="ingredient-actions">
-
-                                <form
-                                    method="POST"
-                                    action="{{ url_for(
-                                        'recipes.move_ingredient',
-                                        id=item.id,
-                                        direction='up'
-                                    ) }}"
-                                >
-                                    <button
-                                        class="button button-secondary button-small"
-                                        type="submit"
-                                        aria-label="Move ingredient up"
-                                    >
-                                        ↑
-                                    </button>
-                                </form>
-
-                                <form
-                                    method="POST"
-                                    action="{{ url_for(
-                                        'recipes.move_ingredient',
-                                        id=item.id,
-                                        direction='down'
-                                    ) }}"
-                                >
-                                    <button
-                                        class="button button-secondary button-small"
-                                        type="submit"
-                                        aria-label="Move ingredient down"
-                                    >
-                                        ↓
-                                    </button>
-                                </form>
 
                                 <a
                                     class="button button-secondary button-small"
@@ -573,134 +566,126 @@
 
         {% endif %}
 
-        {% for section in recipe.sections %}
 
-            {% if section.ingredients %}
+            {% for section in recipe.sections %}
 
-                <div class="ingredient-section">
+    {% if section.ingredients %}
 
-                    <h3 class="ingredient-section-heading">
-                        {{ section.name }}
-                    </h3>
+        <div class="ingredient-section">
 
-                    <ul class="ingredient-list">
+            <h3 class="ingredient-section-heading">
+                {{ section.name }}
+            </h3>
 
-                        {% for item in section.ingredients %}
+            <ul
+                class="ingredient-list sortable-ingredient-list"
+                data-recipe-id="{{ recipe.id }}"
+                data-section-id="{{ section.id }}"
+            >
 
-                            <li class="ingredient-item">
+                {% for item in section.ingredients %}
 
-                                <div class="ingredient-description">
+                    <li
+                        class="ingredient-item sortable-item"
+                        data-item-id="{{ item.id }}"
+                    >
 
-                                    <strong>
-                                        {{ item.position }}.
-                                    </strong>
+                        {% if current_user.is_authenticated %}
 
-                                    {% if item.quantity %}
+                            <button
+                                class="drag-handle"
+                                type="button"
+                                aria-label="Drag to reorder ingredient"
+                                title="Drag to reorder"
+                            >
+                                <i
+                                    class="bi bi-grip-vertical"
+                                    aria-hidden="true"
+                                ></i>
+                            </button>
 
-                                        <span class="ingredient-quantity">
-                                            {{ item.quantity }}
-                                        </span>
+                        {% endif %}
 
-                                    {% endif %}
 
-                                    {% if item.unit %}
+                        <div class="ingredient-description">
 
-                                        <span class="ingredient-unit">
-                                            {{ unit_labels.get(
-                                                item.unit,
-                                                item.unit
-                                            ) }}
-                                        </span>
+                            <strong class="ingredient-position">
+                                {{ item.position }}.
+                            </strong>
 
-                                    {% endif %}
+                            {% if item.quantity %}
 
-                                    <span class="ingredient-name">
-                                        {{ item.ingredient.name }}
-                                    </span>
+                                <span class="ingredient-quantity">
+                                    {{ item.quantity }}
+                                </span>
 
-                                </div>
+                            {% endif %}
 
-                                {% if current_user.is_authenticated %}
+                            {% if item.unit %}
 
-                                    <div class="ingredient-actions">
+                                <span class="ingredient-unit">
+                                    {{ unit_labels.get(
+                                        item.unit,
+                                        item.unit
+                                    ) }}
+                                </span>
 
-                                        <form
-                                            method="POST"
-                                            action="{{ url_for(
-                                                'recipes.move_ingredient',
-                                                id=item.id,
-                                                direction='up'
-                                            ) }}"
-                                        >
-                                            <button
-                                                class="button button-secondary button-small"
-                                                type="submit"
-                                                aria-label="Move ingredient up"
-                                            >
-                                                ↑
-                                            </button>
-                                        </form>
+                            {% endif %}
 
-                                        <form
-                                            method="POST"
-                                            action="{{ url_for(
-                                                'recipes.move_ingredient',
-                                                id=item.id,
-                                                direction='down'
-                                            ) }}"
-                                        >
-                                            <button
-                                                class="button button-secondary button-small"
-                                                type="submit"
-                                                aria-label="Move ingredient down"
-                                            >
-                                                ↓
-                                            </button>
-                                        </form>
+                            <span class="ingredient-name">
+                                {{ item.ingredient.name }}
+                            </span>
 
-                                        <a
-                                            class="button button-secondary button-small"
-                                            href="{{ url_for(
-                                                'recipes.edit_ingredient',
-                                                id=item.id
-                                            ) }}"
-                                        >
-                                            Edit
-                                        </a>
+                        </div>
 
-                                        <form
-                                            method="POST"
-                                            action="{{ url_for(
-                                                'recipes.delete_ingredient',
-                                                id=item.id
-                                            ) }}"
-                                            onsubmit="return confirm(
-                                                'Remove this ingredient?'
-                                            );"
-                                        >
-                                            <button
-                                                class="button button-danger button-small"
-                                                type="submit"
-                                            >
-                                                Delete
-                                            </button>
-                                        </form>
 
-                                    </div>
+                        {% if current_user.is_authenticated %}
 
-                                {% endif %}
+                            <div class="ingredient-actions">
 
-                            </li>
+                                <a
+                                    class="button button-secondary button-small"
+                                    href="{{ url_for(
+                                        'recipes.edit_ingredient',
+                                        id=item.id
+                                    ) }}"
+                                >
+                                    Edit
+                                </a>
 
-                        {% endfor %}
+                                <form
+                                    method="POST"
+                                    action="{{ url_for(
+                                        'recipes.delete_ingredient',
+                                        id=item.id
+                                    ) }}"
+                                    onsubmit="return confirm(
+                                        'Remove this ingredient?'
+                                    );"
+                                >
+                                    <button
+                                        class="button button-danger button-small"
+                                        type="submit"
+                                    >
+                                        Delete
+                                    </button>
+                                </form>
 
-                    </ul>
+                            </div>
 
-                </div>
+                        {% endif %}
 
-            {% endif %}
+                    </li>
 
-        {% endfor %}
+                {% endfor %}
+
+            </ul>
+
+        </div>
+
+    {% endif %}
+
+{% endfor %}
 
     {% else %}
 
@@ -712,8 +697,10 @@
 
 </section>
 
-<section class="card">
-
+<section
+    id="steps"
+    class="card"
+>
     <div class="page-heading">
 
         <h2>Steps</h2>
@@ -734,11 +721,33 @@
 
     {% if recipe.recipe_steps %}
 
-        <ol class="step-list">
+        <ol
+			class="step-list sortable-step-list"
+			data-recipe-id="{{ recipe.id }}"
+		>
 
             {% for step in recipe.recipe_steps %}
 
-                <li class="step-item">
+                <li
+					class="step-item sortable-item"
+					data-item-id="{{ step.id }}"
+					>
+					{% if current_user.is_authenticated %}
+
+					<button
+						class="drag-handle step-drag-handle"
+						type="button"
+						aria-label="Drag to reorder step"
+						title="Drag to reorder"
+					>
+						<i
+							class="bi bi-grip-vertical"
+							aria-hidden="true"
+						></i>
+					</button>
+
+				{% endif %}
+				
 
                     <div class="step-content">
 
@@ -760,40 +769,6 @@
 {% if current_user.is_authenticated %}
 
                     <div class="ingredient-actions">
-
-                        <form
-                            method="POST"
-                            action="{{ url_for(
-                                'recipes.move_step',
-                                id=step.id,
-                                direction='up'
-                            ) }}"
-                        >
-                            <button
-                                class="button button-secondary button-small"
-                                type="submit"
-                                aria-label="Move step up"
-                            >
-                                ↑
-                            </button>
-                        </form>
-
-                        <form
-                            method="POST"
-                            action="{{ url_for(
-                                'recipes.move_step',
-                                id=step.id,
-                                direction='down'
-                            ) }}"
-                        >
-                            <button
-                                class="button button-secondary button-small"
-                                type="submit"
-                                aria-label="Move step down"
-                            >
-                                ↓
-                            </button>
-                        </form>
 
                         <a
                             class="button button-secondary button-small"
@@ -981,8 +956,13 @@
 {% endif %}
 
 <script
+    src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"
+></script>
+
+<script
     src="{{ url_for('static', filename='js/recipe_detail.js') }}"
     defer
 ></script>
+
 {% endblock %}
 

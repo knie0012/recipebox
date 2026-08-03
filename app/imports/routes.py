@@ -4,6 +4,7 @@ from flask import (
     render_template,
     request,
     url_for,
+    current_app,
 )
 from flask_login import (
     current_user,
@@ -41,7 +42,7 @@ from app.recipes.services import (
 )
 
 import re
-
+import requests
 def get_indexed_form_values(
     prefix: str,
     field_name: str,
@@ -656,21 +657,37 @@ def save_import(import_token):
         )
 
         if import_image and image_url:
-            stored_filename, imported_file_path = (
-                download_imported_image(
-                    image_url,
-                    recipe.id,
-                )
-            )
 
-            db.session.add(
-                RecipeImages(
-                    recipe_id=recipe.id,
-                    filename=stored_filename,
-                    caption=title,
-                    uploaded_by=current_user.id,
+            try:
+                stored_filename, imported_file_path = (
+                    download_imported_image(
+                        image_url,
+                        recipe,
+                    )
                 )
-            )
+
+            except requests.RequestException as error:
+                current_app.logger.warning(
+                    "Recipe imported without image. "
+                    "Image URL %s failed: %s",
+                    image_url,
+                    error,
+                )
+
+                flash(
+                    "Recipe saved, but its image could not be downloaded.",
+                    "warning",
+                )
+
+            else:
+                db.session.add(
+                    RecipeImages(
+                        recipe_id=recipe.id,
+                        filename=stored_filename,
+                        caption=title,
+                        uploaded_by=current_user.id,
+                    )
+                )
 
         source_url = imported_recipe.get(
             "source_url",

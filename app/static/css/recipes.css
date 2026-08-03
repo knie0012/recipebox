@@ -630,3 +630,123 @@
 .recipe-match-reasons li {
     margin: 0.15rem 0;
 }
+
+/* ---------------------------------------------------------
+   Drag-and-drop recipe ordering
+--------------------------------------------------------- */
+
+.sortable-item {
+    position: relative;
+}
+
+.drag-handle {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+
+    width: 2.5rem;
+    min-width: 2.5rem;
+    height: 2.75rem;
+    padding: 0;
+
+    border: 1px solid var(--border);
+    border-radius: 0.55rem;
+
+    background: var(--background);
+    color: var(--muted);
+
+    font-size: 1.35rem;
+    line-height: 1;
+
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease,
+        transform 0.1s ease;
+}
+
+.drag-handle:hover {
+    background: #f0f2ed;
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+    transform: scale(0.96);
+}
+
+.drag-handle:focus-visible {
+    outline: 3px solid
+        color-mix(
+            in srgb,
+            var(--primary) 25%,
+            transparent
+        );
+    outline-offset: 2px;
+}
+
+.sortable-ghost {
+    opacity: 0.35;
+    background: rgba(91, 140, 70, 0.12);
+}
+
+.sortable-chosen {
+    background: rgba(91, 140, 70, 0.06);
+}
+
+.sortable-drag {
+    background: #ffffff;
+    border-radius: 0.65rem;
+    box-shadow:
+        0 0.6rem 1.5rem rgba(0, 0, 0, 0.18);
+}
+
+.is-saving-order {
+    opacity: 0.72;
+    pointer-events: none;
+}
+
+@media (min-width: 650px) {
+    .ingredient-item {
+        display: grid;
+        grid-template-columns:
+            auto
+            minmax(0, 1fr)
+            auto;
+        align-items: center;
+    }
+
+    .step-item {
+        display: grid;
+        grid-template-columns:
+            auto
+            minmax(0, 1fr)
+            auto;
+        align-items: start;
+    }
+}
+
+@media (max-width: 649px) {
+    .ingredient-item,
+    .step-item {
+        display: grid;
+        grid-template-columns:
+            auto
+            minmax(0, 1fr);
+        align-items: start;
+    }
+
+    .ingredient-actions {
+        grid-column: 2;
+    }
+
+    .step-item .ingredient-actions {
+        grid-column: 2;
+    }
+}

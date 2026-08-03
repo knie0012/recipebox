@@ -4,6 +4,250 @@ document.addEventListener("DOMContentLoaded", () => {
     const favoriteButton = document.getElementById(
         "family-favorite-button"
     );
+	
+    const sortableIngredientLists = Array.from(
+        document.querySelectorAll(
+            ".sortable-ingredient-list"
+        )
+    );
+
+    const sortableStepList = document.querySelector(
+        ".sortable-step-list"
+    );
+
+
+    async function saveReorder(url, payload) {
+        const response = await fetch(
+            url,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+                body: JSON.stringify(payload),
+            }
+        );
+
+        let data;
+
+        try {
+            data = await response.json();
+        } catch {
+            throw new Error(
+                "The server returned an invalid response."
+            );
+        }
+
+        if (!response.ok) {
+            throw new Error(
+                data.error ||
+                "The new order could not be saved."
+            );
+        }
+
+        return data;
+    }
+
+
+    function getOrderedItemIds(container) {
+        return Array.from(
+            container.querySelectorAll(
+                ":scope > .sortable-item"
+            )
+        ).map(item => Number(item.dataset.itemId));
+    }
+
+
+    function updateVisiblePositions(container) {
+        const items = container.querySelectorAll(
+            ":scope > .sortable-item"
+        );
+
+        items.forEach((item, index) => {
+            const positionElement =
+                item.querySelector(
+                    ".ingredient-position"
+                );
+
+            if (positionElement) {
+                positionElement.textContent =
+                    `${index + 1}.`;
+            }
+        });
+    }
+
+
+    if (typeof Sortable !== "undefined") {
+        sortableIngredientLists.forEach(list => {
+            const recipeId = list.dataset.recipeId;
+            const sectionId = list.dataset.sectionId;
+
+            let previousOrder =
+                getOrderedItemIds(list);
+
+            new Sortable(
+                list,
+                {
+                    animation: 180,
+                    handle: ".drag-handle",
+                    draggable: ".sortable-item",
+                    ghostClass: "sortable-ghost",
+                    chosenClass: "sortable-chosen",
+                    dragClass: "sortable-drag",
+
+                    /*
+                    No shared group is configured, so an
+                    ingredient cannot move to another section.
+                    */
+                    onStart() {
+                        previousOrder =
+                            getOrderedItemIds(list);
+                    },
+
+                    async onEnd(event) {
+                        const newOrder =
+                            getOrderedItemIds(list);
+
+                        if (
+                            JSON.stringify(newOrder) ===
+                            JSON.stringify(previousOrder)
+                        ) {
+                            return;
+                        }
+
+                        list.classList.add("is-saving-order");
+
+                        try {
+                            await saveReorder(
+                                `/recipebox/${recipeId}/ingredients/reorder`,
+                                {
+                                    item_ids: newOrder,
+                                    section_id:
+                                        sectionId || null,
+                                }
+                            );
+
+                            updateVisiblePositions(list);
+                        } catch (error) {
+                            console.error(
+                                "Ingredient reorder failed:",
+                                error
+                            );
+
+                            /*
+                            Restore the previous DOM order when
+                            the server rejects the change.
+                            */
+                            previousOrder.forEach(itemId => {
+                                const item = list.querySelector(
+                                    `[data-item-id="${itemId}"]`
+                                );
+
+                                if (item) {
+                                    list.appendChild(item);
+                                }
+                            });
+
+                            updateVisiblePositions(list);
+
+                            window.alert(
+                                error.message ||
+                                "Unable to save ingredient order."
+                            );
+                        } finally {
+                            list.classList.remove(
+                                "is-saving-order"
+                            );
+                        }
+                    },
+                }
+            );
+        });
+
+
+        if (sortableStepList) {
+            const recipeId =
+                sortableStepList.dataset.recipeId;
+
+            let previousOrder =
+                getOrderedItemIds(sortableStepList);
+
+            new Sortable(
+                sortableStepList,
+                {
+                    animation: 180,
+                    handle: ".step-drag-handle",
+                    draggable: ".sortable-item",
+                    ghostClass: "sortable-ghost",
+                    chosenClass: "sortable-chosen",
+                    dragClass: "sortable-drag",
+
+                    onStart() {
+                        previousOrder =
+                            getOrderedItemIds(
+                                sortableStepList
+                            );
+                    },
+
+                    async onEnd() {
+                        const newOrder =
+                            getOrderedItemIds(
+                                sortableStepList
+                            );
+
+                        if (
+                            JSON.stringify(newOrder) ===
+                            JSON.stringify(previousOrder)
+                        ) {
+                            return;
+                        }
+
+                        sortableStepList.classList.add(
+                            "is-saving-order"
+                        );
+
+                        try {
+                            await saveReorder(
+                                `/recipebox/${recipeId}/steps/reorder`,
+                                {
+                                    item_ids: newOrder,
+                                }
+                            );
+                        } catch (error) {
+                            console.error(
+                                "Step reorder failed:",
+                                error
+                            );
+
+                            previousOrder.forEach(itemId => {
+                                const item =
+                                    sortableStepList.querySelector(
+                                        `[data-item-id="${itemId}"]`
+                                    );
+
+                                if (item) {
+                                    sortableStepList.appendChild(
+                                        item
+                                    );
+                                }
+                            });
+
+                            window.alert(
+                                error.message ||
+                                "Unable to save step order."
+                            );
+                        } finally {
+                            sortableStepList.classList.remove(
+                                "is-saving-order"
+                            );
+                        }
+                    },
+                }
+            );
+        }
+    }
+	
 
     const ratingContainer = document.getElementById(
         "rating-stars"

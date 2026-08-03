@@ -12,9 +12,11 @@ from flask_login import current_user, login_required
 
 from app import db
 from app.models import (
+    RecipeIngredients,
     RecipeMadeEvent,
     RecipeRating,
     Recipes,
+    RecipeSteps,
     RecipeTypes,
     Tags,
 )
@@ -141,6 +143,197 @@ def detail(id):
         unit_labels=UNIT_LABELS,
         user_rating=user_rating,
     )
+ 
+@recipes.post(
+    "/recipebox/<int:recipe_id>/ingredients/reorder"
+)
+@login_required
+def reorder_ingredients(recipe_id):
+    recipe = db.get_or_404(Recipes, recipe_id)
+
+    data = request.get_json(silent=True) or {}
+    raw_item_ids = data.get("item_ids")
+    raw_section_id = data.get("section_id")
+
+    if not isinstance(raw_item_ids, list):
+        return jsonify(
+            {
+                "success": False,
+                "error": "Ingredient order is required.",
+            }
+        ), 400
+
+    try:
+        item_ids = [
+            int(item_id)
+            for item_id in raw_item_ids
+        ]
+    except (TypeError, ValueError):
+        return jsonify(
+            {
+                "success": False,
+                "error": "Ingredient IDs must be integers.",
+            }
+        ), 400
+
+    if len(item_ids) != len(set(item_ids)):
+        return jsonify(
+            {
+                "success": False,
+                "error": "Duplicate ingredient IDs were received.",
+            }
+        ), 400
+
+    if raw_section_id in (None, ""):
+        section_id = None
+    else:
+        try:
+            section_id = int(raw_section_id)
+        except (TypeError, ValueError):
+            return jsonify(
+                {
+                    "success": False,
+                    "error": "The ingredient section is invalid.",
+                }
+            ), 400
+
+    ingredients = RecipeIngredients.query.filter(
+        RecipeIngredients.id.in_(item_ids),
+        RecipeIngredients.recipe_id == recipe.id,
+    ).all()
+
+    if len(ingredients) != len(item_ids):
+        return jsonify(
+            {
+                "success": False,
+                "error": (
+                    "One or more ingredients do not "
+                    "belong to this recipe."
+                ),
+            }
+        ), 400
+
+    if any(
+        ingredient.section_id != section_id
+        for ingredient in ingredients
+    ):
+        return jsonify(
+            {
+                "success": False,
+                "error": (
+                    "Ingredients may only be reordered "
+                    "within their current section."
+                ),
+            }
+        ), 400
+
+    ingredient_by_id = {
+        ingredient.id: ingredient
+        for ingredient in ingredients
+    }
+
+    for position, ingredient_id in enumerate(
+        item_ids,
+        start=1,
+    ):
+        ingredient_by_id[ingredient_id].position = position
+
+    record_recipe_history(
+        recipe_id=recipe.id,
+        action="ingredients_reordered",
+        details="Reordered recipe ingredients.",
+    )
+
+    db.session.commit()
+
+    return jsonify(
+        {
+            "success": True,
+            "item_ids": item_ids,
+        }
+    )
+
+@recipes.post(
+    "/recipebox/<int:recipe_id>/steps/reorder"
+)
+@login_required
+def reorder_steps(recipe_id):
+    recipe = db.get_or_404(Recipes, recipe_id)
+
+    data = request.get_json(silent=True) or {}
+    raw_item_ids = data.get("item_ids")
+
+    if not isinstance(raw_item_ids, list):
+        return jsonify(
+            {
+                "success": False,
+                "error": "Step order is required.",
+            }
+        ), 400
+
+    try:
+        item_ids = [
+            int(item_id)
+            for item_id in raw_item_ids
+        ]
+    except (TypeError, ValueError):
+        return jsonify(
+            {
+                "success": False,
+                "error": "Step IDs must be integers.",
+            }
+        ), 400
+
+    if len(item_ids) != len(set(item_ids)):
+        return jsonify(
+            {
+                "success": False,
+                "error": "Duplicate step IDs were received.",
+            }
+        ), 400
+
+    steps = RecipeSteps.query.filter(
+        RecipeSteps.id.in_(item_ids),
+        RecipeSteps.recipe_id == recipe.id,
+    ).all()
+
+    if len(steps) != len(item_ids):
+        return jsonify(
+            {
+                "success": False,
+                "error": (
+                    "One or more steps do not "
+                    "belong to this recipe."
+                ),
+            }
+        ), 400
+
+    step_by_id = {
+        step.id: step
+        for step in steps
+    }
+
+    for position, step_id in enumerate(
+        item_ids,
+        start=1,
+    ):
+        step_by_id[step_id].position = position
+
+    record_recipe_history(
+        recipe_id=recipe.id,
+        action="steps_reordered",
+        details="Reordered recipe steps.",
+    )
+
+    db.session.commit()
+
+    return jsonify(
+        {
+            "success": True,
+            "item_ids": item_ids,
+        }
+    )
+
     
 
 @recipes.route("/recipebox/<int:id>/cook")

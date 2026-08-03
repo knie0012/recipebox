@@ -97,6 +97,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const wakeLockStatus = document.getElementById(
         "wake-lock-status"
     );
+	
+	const cookingNavigation = document.querySelector(
+	    ".cooking-navigation"
+	);
 
     let currentStepIndex = 0;
     let wakeLockSentinel = null;
@@ -240,95 +244,126 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    function showStep(stepIndex) {
-        if (!cookingSteps.length) {
-            return;
-        }
+	function showStep(
+	    stepIndex,
+	    preserveNavigationPosition = false
+	) {
+	    if (!cookingSteps.length) {
+	        return;
+	    }
 
-        currentStepIndex = Math.max(
-            0,
-            Math.min(
-                stepIndex,
-                cookingSteps.length - 1
-            )
-        );
+	    /*
+	    Record where the navigation buttons currently appear
+	    on the screen before changing the instruction height.
+	    */
+	    const previousNavigationTop =
+	        preserveNavigationPosition && cookingNavigation
+	            ? cookingNavigation.getBoundingClientRect().top
+	            : null;
 
-        cookingSteps.forEach((step, index) => {
-            const isCurrent =
-                index === currentStepIndex;
+	    currentStepIndex = Math.max(
+	        0,
+	        Math.min(
+	            stepIndex,
+	            cookingSteps.length - 1
+	        )
+	    );
 
-            step.hidden = !isCurrent;
+	    cookingSteps.forEach((step, index) => {
+	        const isCurrent =
+	            index === currentStepIndex;
 
-            step.classList.toggle(
-                "is-active",
-                isCurrent
-            );
-        });
+	        step.hidden = !isCurrent;
 
-        const displayedStep =
-            currentStepIndex + 1;
+	        step.classList.toggle(
+	            "is-active",
+	            isCurrent
+	        );
+	    });
 
-        /*
-        Step 1 begins at 0%.
-        Clicking Finish displays 100%.
-        */
-        const percentComplete = Math.round(
-            (
-                currentStepIndex /
-                cookingSteps.length
-            ) * 100
-        );
+	    const displayedStep =
+	        currentStepIndex + 1;
 
-        if (currentStepNumber) {
-            currentStepNumber.textContent =
-                displayedStep;
-        }
+	    const percentComplete = Math.round(
+	        (
+	            currentStepIndex /
+	            cookingSteps.length
+	        ) * 100
+	    );
 
-        if (progressPercent) {
-            progressPercent.textContent =
-                `${percentComplete}%`;
-        }
+	    if (currentStepNumber) {
+	        currentStepNumber.textContent =
+	            displayedStep;
+	    }
 
-        if (progressBar) {
-            progressBar.style.width =
-                `${percentComplete}%`;
-        }
+	    if (progressPercent) {
+	        progressPercent.textContent =
+	            `${percentComplete}%`;
+	    }
 
-        if (previousButton) {
-            previousButton.hidden = false;
-            previousButton.disabled =
-                currentStepIndex === 0;
-        }
+	    if (progressBar) {
+	        progressBar.style.width =
+	            `${percentComplete}%`;
+	    }
 
-        const isLastStep =
-            currentStepIndex ===
-            cookingSteps.length - 1;
+	    if (previousButton) {
+	        previousButton.hidden = false;
+	        previousButton.disabled =
+	            currentStepIndex === 0;
+	    }
 
-        if (nextButton) {
-            nextButton.hidden = false;
+	    const isLastStep =
+	        currentStepIndex ===
+	        cookingSteps.length - 1;
 
-            nextButton.innerHTML = isLastStep
-                ? `
-                    Finish
-                    <i class="bi bi-check-lg"></i>
-                  `
-                : `
-                    Next
-                    <i class="bi bi-arrow-right"></i>
-                  `;
-        }
+	    if (nextButton) {
+	        nextButton.hidden = false;
 
-        if (finishedPanel) {
-            finishedPanel.hidden = true;
-        }
+	        nextButton.innerHTML = isLastStep
+	            ? `
+	                Finish
+	                <i class="bi bi-check-lg"></i>
+	              `
+	            : `
+	                Next
+	                <i class="bi bi-arrow-right"></i>
+	              `;
+	    }
 
-        saveState();
+	    if (finishedPanel) {
+	        finishedPanel.hidden = true;
+	    }
 
-        window.scrollTo({
-            top: 0,
-            behavior: "smooth",
-        });
-    }
+	    saveState();
+
+	    /*
+	    After the new instruction is rendered, compensate for
+	    its height difference so the navigation remains in the
+	    same position on the phone screen.
+	    */
+	    if (
+	        preserveNavigationPosition &&
+	        cookingNavigation &&
+	        previousNavigationTop !== null
+	    ) {
+	        requestAnimationFrame(() => {
+	            const newNavigationTop =
+	                cookingNavigation
+	                    .getBoundingClientRect()
+	                    .top;
+
+	            const positionChange =
+	                newNavigationTop -
+	                previousNavigationTop;
+
+	            window.scrollBy({
+	                top: positionChange,
+	                left: 0,
+	                behavior: "instant",
+	            });
+	        });
+	    }
+	}
 
 
     function finishCooking() {
@@ -725,9 +760,10 @@ document.addEventListener("DOMContentLoaded", () => {
     previousButton?.addEventListener(
         "click",
         () => {
-            showStep(
-                currentStepIndex - 1
-            );
+			showStep(
+			    currentStepIndex - 1,
+			    true
+			);
         }
     );
 
@@ -744,9 +780,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            showStep(
-                currentStepIndex + 1
-            );
+			showStep(
+			    currentStepIndex + 1,
+			    true
+			);
         }
     );
 

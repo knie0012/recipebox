@@ -301,6 +301,8 @@ def new_ingredient(recipe_id):
             url_for(
                 "recipes.detail",
                 id=recipe.id,
+                _anchor="ingredients",
+
             )
         )
 
@@ -516,6 +518,8 @@ def edit_ingredient(id):
             url_for(
                 "recipes.detail",
                 id=recipe.id,
+                _anchor="ingredients",
+
             )
         )
 
@@ -586,6 +590,8 @@ def delete_ingredient(id):
         url_for(
             "recipes.detail",
             id=recipe_id,
+            _anchor="ingredients",
+
         )
     )
 
@@ -656,5 +662,7 @@ def move_ingredient(id, direction):
         url_for(
             "recipes.detail",
             id=item.recipe_id,
+            _anchor="ingredients",
+
         )
     )

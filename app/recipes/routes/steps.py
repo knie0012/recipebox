@@ -101,6 +101,8 @@ def new_step(recipe_id):
             url_for(
                 "recipes.detail",
                 id=recipe.id,
+                _anchor="steps",
+
             )
         )
 
@@ -204,12 +206,12 @@ def edit_step(id):
                 "success",
             )
 
-        flash("The recipe step was updated.", "success")
-
         return redirect(
             url_for(
                 "recipes.detail",
                 id=step.recipe_id,
+                _anchor="steps",
+
             )
         )
 
@@ -263,6 +265,8 @@ def delete_step(id):
         url_for(
             "recipes.detail",
             id=recipe_id,
+            _anchor="steps",
+
         )
     )
 
@@ -288,6 +292,8 @@ def move_step(id, direction):
             url_for(
                 "recipes.detail",
                 id=step.recipe_id,
+                _anchor="steps",
+
             )
         )
 
@@ -298,5 +304,7 @@ def move_step(id, direction):
         url_for(
             "recipes.detail",
             id=step.recipe_id,
+            _anchor="steps",
+
         )
     )
